@@ -1,8 +1,13 @@
 <!-- Fluxo Chegada/Saída Page Template -->
 <div class="page-header">
   <div><h2>✈️ Fluxo de Chegada & Saída</h2><p>Gerenciar reservas e movimentação de clientes</p></div>
-  <div style="display:flex;gap:10px">
-    <button class="btn btn-secondary" onclick="Exportar.run('bookings')">📤 Exportar</button>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <select id="export-type" style="padding:8px; border:1px solid var(--border); border-radius:4px; background:var(--card-bg); color:var(--text-main);" onchange="document.getElementById('export-month').style.display = this.value === 'month' ? 'block' : 'none'">
+      <option value="general">Exportar: Geral</option>
+      <option value="month">Exportar: Por Mês</option>
+    </select>
+    <input type="month" id="export-month" style="display:none; padding:8px; border:1px solid var(--border); border-radius:4px; background:var(--card-bg); color:var(--text-main);" title="Mês da exportação">
+    <button class="btn btn-secondary" onclick="Fluxo.exportar()">📤 Gerar Planilha</button>
     <button class="btn btn-primary" onclick="Fluxo.openForm()">+ Nova Reserva</button>
   </div>
 </div>

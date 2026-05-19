@@ -151,7 +151,7 @@ const Caixa = {
 // ============================================================
 
 const Exportar = {
-  run(module) {
+  run(module, options = {}) {
     const wb = XLSX.utils.book_new();
 
     const addSheet = (name, data) => {
@@ -167,7 +167,11 @@ const Exportar = {
       })));
     }
     if (module === 'all' || module === 'bookings') {
-      addSheet('Reservas', DB.get(DB.KEYS.BOOKINGS).map(b => {
+      let bookings = DB.get(DB.KEYS.BOOKINGS);
+      if (options.month) {
+        bookings = bookings.filter(b => (b.checkIn && b.checkIn.startsWith(options.month)) || (b.checkOut && b.checkOut.startsWith(options.month)));
+      }
+      const dataToExport = bookings.map(b => {
         const c = DB.getOne(DB.KEYS.CLIENTS, b.clientId);
         const p = DB.getOne(DB.KEYS.PACKAGES, b.packageId);
         const g = DB.getOne(DB.KEYS.EMPLOYEES, b.guideId);
@@ -180,7 +184,12 @@ const Exportar = {
           'Valor Total': b.totalValue, Pago: b.paid, Pendente: b.totalValue - (b.paid||0),
           Obs: b.notes,
         };
-      }));
+      });
+      if (!dataToExport.length && options.month) {
+        showToast('Nenhuma reserva encontrada para o mês selecionado.', 'info');
+        return;
+      }
+      addSheet('Reservas', dataToExport);
     }
     if (module === 'all' || module === 'packages') {
       addSheet('Pacotes', DB.get(DB.KEYS.PACKAGES).map(p => ({
@@ -219,7 +228,7 @@ const Exportar = {
       ]);
     }
 
-    const filename = `CiaCapivara_${module}_${today()}.xlsx`;
+    const filename = `CiaCapivara_${module}_${options.month ? options.month : today()}.xlsx`;
     XLSX.writeFile(wb, filename);
     showToast(`📥 Planilha exportada: ${filename}`, 'success');
   },

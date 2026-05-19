@@ -5,6 +5,18 @@
 const Fluxo = {
   editingId: null,
 
+  exportar() {
+    const type = document.getElementById('export-type').value;
+    const month = document.getElementById('export-month').value;
+    
+    if (type === 'month' && !month) {
+      showToast('Selecione um mês para exportar.', 'error');
+      return;
+    }
+    
+    Exportar.run('bookings', { month: type === 'month' ? month : null });
+  },
+
   render() {
     this.renderList();
   },
