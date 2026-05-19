@@ -55,7 +55,12 @@ const DB = {
 
     // --- USERS (Apenas o admin necessário para login) ---
     const users = [
-      { id: 'u1', username: 'admin', password: 'admin123', email: 'admin@ciacapivara.com', role: 'admin', name: 'Administrador' }
+      {
+        id: 'u1', username: 'admin', password: 'admin123', email: 'admin@ciacapivara.com', role: 'admin', name: 'Administrador'
+      },
+      {
+        id: 'u2', username: 'felipe', password: 'felipe8212', email: 'felipexlouzeiro@gmail.com', role: 'admin', name: 'Felipe Louzeiro'
+      }
     ];
     this.set(this.KEYS.USERS, users);
 
