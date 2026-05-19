@@ -1,0 +1,46 @@
+<!-- Pacotes Page Template -->
+<div class="page-header">
+  <div><h2>📦 Pacotes Turísticos</h2><p>Cadastro e gestão de pacotes de viagem</p></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-secondary" onclick="Exportar.run('packages')">📤 Exportar</button>
+    <button class="btn btn-primary" onclick="Pacotes.openForm()">+ Novo Pacote</button>
+  </div>
+</div>
+<div class="filters-bar">
+  <div class="filter-group"><label>Buscar</label><input type="text" id="pacotes-search" placeholder="Nome ou destino..." oninput="Pacotes.renderList(document.getElementById('pacotes-filter-status').value, this.value)"></div>
+  <div class="filter-group"><label>Status</label><select id="pacotes-filter-status" onchange="Pacotes.renderList(this.value, document.getElementById('pacotes-search').value)"><option value="">Todos</option><option value="active">Ativo</option><option value="inactive">Inativo</option></select></div>
+</div>
+<div class="grid-3" id="pacotes-grid"></div>
+
+<!-- Modal: Novo/Editar Pacote -->
+<div class="modal-overlay" id="pacote-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="pacote-modal-title">Novo Pacote</div><button class="modal-close" onclick="closeModal('pacote-modal')">✕</button></div>
+    <div class="modal-body">
+      <form id="pacote-form" onsubmit="event.preventDefault();Pacotes.save()">
+        <div class="form-grid">
+          <div class="form-group"><label>Nome *</label><input name="name" required></div>
+          <div class="form-group"><label>Destino *</label><input name="destination" required></div>
+          <div class="form-group"><label>Duração (dias)</label><input name="duration" type="number" min="1" value="1"></div>
+          <div class="form-group"><label>Preço (R$)</label><input name="price" type="number" step="0.01"></div>
+          <div class="form-group"><label>Capacidade</label><input name="capacity" type="number" min="1" value="10"></div>
+          <div class="form-group"><label>Status</label><select name="status"><option value="active">Ativo</option><option value="inactive">Inativo</option></select></div>
+          <div class="form-group full"><label>Descrição</label><textarea name="description" rows="3"></textarea></div>
+          <div class="form-group full"><label>Roteiro / Itinerário</label><textarea name="itinerary" rows="4" placeholder="Dia 1: ...\nDia 2: ..."></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('pacote-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Pacotes.save()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ver Pacote -->
+<div class="modal-overlay" id="pacote-view-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title">Detalhes do Pacote</div><button class="modal-close" onclick="closeModal('pacote-view-modal')">✕</button></div>
+    <div class="modal-body" id="pacote-view-body"></div>
+  </div>
+</div>

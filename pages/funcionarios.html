@@ -1,0 +1,85 @@
+<!-- Funcionarios Page Template -->
+<div class="page-header">
+  <div><h2>👷 Funcionários & Escalas</h2><p>Gerencie a equipe e a atribuição de tarefas/missões</p></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-secondary" onclick="Exportar.run('employees')">📤 Exportar</button>
+    <button class="btn btn-primary" onclick="Funcionarios.openEmpForm()">+ Novo Funcionário</button>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Painel de Funcionários -->
+  <div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <h3 style="font-size:16px;font-weight:700">Equipe</h3>
+      <input type="text" placeholder="Buscar..." oninput="Funcionarios.renderEmployees(this.value)" style="padding:6px 12px;width:150px">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr;gap:16px" id="emp-grid"></div>
+  </div>
+
+  <!-- Painel de Tarefas -->
+  <div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <h3 style="font-size:16px;font-weight:700">Painel de Tarefas</h3>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-sm btn-secondary" onclick="Exportar.run('tasks')">📤 Exportar</button>
+        <button class="btn btn-sm btn-primary" onclick="Funcionarios.openTaskForm()">+ Nova Tarefa</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarefa</th><th>Funcionário</th><th>Partida / Destino</th><th>Data</th><th>Hora</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tasks-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Novo/Editar Funcionário -->
+<div class="modal-overlay" id="emp-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="emp-modal-title">Novo Funcionário</div><button class="modal-close" onclick="closeModal('emp-modal')">✕</button></div>
+    <div class="modal-body">
+      <form id="emp-form" onsubmit="event.preventDefault();Funcionarios.saveEmp()">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nome *</label><input name="name" required></div>
+          <div class="form-group full"><label>Função *</label><input name="role" placeholder="Ex: Guia Turístico, Motorista" required></div>
+          <div class="form-group"><label>Telefone</label><input name="phone"></div>
+          <div class="form-group"><label>Email</label><input name="email" type="email"></div>
+          <div class="form-group full"><label>Observações</label><textarea name="notes" rows="2"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('emp-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Funcionarios.saveEmp()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nova/Editar Tarefa -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="task-modal-title">Nova Tarefa</div><button class="modal-close" onclick="closeModal('task-modal')">✕</button></div>
+    <div class="modal-body">
+      <form id="task-form" onsubmit="event.preventDefault();Funcionarios.saveTask()">
+        <div class="form-grid">
+          <div class="form-group full"><label>Funcionário *</label><select name="employeeId" id="task-sel-emp" required></select></div>
+          <div class="form-group full"><label>Título da Tarefa *</label><input name="title" placeholder="Ex: Translado Aeroporto, Trilha Arqueológica" required></div>
+          <div class="form-group"><label>Partida/Origem</label><input name="departure" placeholder="Ex: Agência, Hotel"></div>
+          <div class="form-group"><label>Destino/Local</label><input name="destination" placeholder="Ex: Aeroporto"></div>
+          <div class="form-group"><label>Data</label><input name="date" type="date" required></div>
+          <div class="form-group"><label>Horário</label><input name="time" type="time"></div>
+          <div class="form-group"><label>Status</label><select name="status"><option value="pending">Pendente</option><option value="in_progress">Em Andamento</option><option value="done">Concluído</option></select></div>
+          <div class="form-group full"><label>Descrição / Instruções</label><textarea name="description" rows="3"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Funcionarios.saveTask()">💾 Salvar</button>
+    </div>
+  </div>
+</div>

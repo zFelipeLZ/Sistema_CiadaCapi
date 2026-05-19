@@ -1,0 +1,92 @@
+<!-- Fluxo de Caixa Page Template -->
+<div class="page-header">
+  <div><h2>💰 Fluxo de Caixa</h2><p>Controle financeiro de receitas e despesas</p></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-secondary" onclick="Exportar.run('cashflow')">📤 Exportar</button>
+    <button class="btn btn-primary" onclick="Caixa.openForm()">+ Novo Lançamento</button>
+  </div>
+</div>
+
+<div class="grid-3" style="margin-bottom:20px">
+  <div class="card" style="margin:0;display:flex;align-items:center;gap:16px;padding:24px">
+    <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.15);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:24px">📥</div>
+    <div>
+      <div style="font-size:12px;color:var(--text-secondary)">Total de Entradas</div>
+      <div style="font-size:24px;font-weight:800;color:var(--green)" id="cx-total-income">R$ 0</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Este mês: <span id="cx-month-income"></span></div>
+    </div>
+  </div>
+  <div class="card" style="margin:0;display:flex;align-items:center;gap:16px;padding:24px">
+    <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,0.15);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:24px">📤</div>
+    <div>
+      <div style="font-size:12px;color:var(--text-secondary)">Total de Saídas</div>
+      <div style="font-size:24px;font-weight:800;color:var(--red)" id="cx-total-expense">R$ 0</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Este mês: <span id="cx-month-expense"></span></div>
+    </div>
+  </div>
+  <div class="card" style="margin:0;display:flex;align-items:center;gap:16px;padding:24px">
+    <div style="width:48px;height:48px;border-radius:12px;background:rgba(59,130,246,0.15);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:24px">💳</div>
+    <div>
+      <div style="font-size:12px;color:var(--text-secondary)">Saldo Geral</div>
+      <div style="font-size:24px;font-weight:800;color:var(--blue)" id="cx-balance">R$ 0</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2" style="grid-template-columns:2fr 1fr">
+  <div>
+    <div class="filters-bar" style="margin-bottom:16px">
+      <div class="filter-group"><label>Tipo</label><select id="caixa-type" onchange="Caixa.renderList()"><option value="">Todos</option><option value="income">Entradas</option><option value="expense">Saídas</option></select></div>
+      <div class="filter-group"><label>Categoria</label><select id="caixa-cat" onchange="Caixa.renderList()"><option value="">Todas</option><option value="Pacote Turístico">Pacote Turístico</option><option value="Transporte">Transporte</option><option value="Hospedagem">Hospedagem</option><option value="Alimentação">Alimentação</option><option value="Combustível">Combustível</option><option value="Salários">Salários</option><option value="Manutenção">Manutenção</option><option value="Outros">Outros</option></select></div>
+      <div class="filter-group"><label>De</label><input type="date" id="caixa-from" onchange="Caixa.renderList()"></div>
+      <div class="filter-group"><label>Até</label><input type="date" id="caixa-to" onchange="Caixa.renderList()"></div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Ações</th></tr></thead>
+          <tbody id="caixa-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-header"><div class="card-title">Despesas por Categoria</div></div>
+    <div class="chart-wrap" style="height:260px"><canvas id="caixa-chart"></canvas></div>
+  </div>
+</div>
+
+<!-- Modal: Novo/Editar Lançamento -->
+<div class="modal-overlay" id="caixa-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="caixa-modal-title">Novo Lançamento</div><button class="modal-close" onclick="closeModal('caixa-modal')">✕</button></div>
+    <div class="modal-body">
+      <form id="caixa-form" onsubmit="event.preventDefault();Caixa.save()">
+        <div class="form-grid">
+          <div class="form-group full"><label>Tipo *</label><select name="type"><option value="income">Entrada (Receita)</option><option value="expense">Saída (Despesa)</option></select></div>
+          <div class="form-group"><label>Valor (R$) *</label><input name="amount" type="number" step="0.01" required></div>
+          <div class="form-group"><label>Data *</label><input name="date" type="date" required></div>
+          <div class="form-group full"><label>Categoria *</label>
+            <select name="category" required>
+              <option value="Pacote Turístico">Pacote Turístico</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Hospedagem">Hospedagem</option>
+              <option value="Alimentação">Alimentação</option>
+              <option value="Combustível">Combustível</option>
+              <option value="Salários">Salários</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Impostos">Impostos</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Descrição *</label><input name="description" placeholder="Ex: Pagamento João, Abastecimento Van" required></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('caixa-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Caixa.save()">💾 Salvar</button>
+    </div>
+  </div>
+</div>

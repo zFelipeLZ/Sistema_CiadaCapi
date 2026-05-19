@@ -1,0 +1,59 @@
+<!-- Dashboard Page Template -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon amber">👥</div>
+    <div><div class="stat-value" id="dash-clients">0</div><div class="stat-label">Clientes Cadastrados</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">🛬</div>
+    <div><div class="stat-value" id="dash-arrivals">0</div><div class="stat-label">Chegadas Hoje</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue">🛫</div>
+    <div><div class="stat-value" id="dash-departures">0</div><div class="stat-label">Saídas Hoje</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple">🧳</div>
+    <div><div class="stat-value" id="dash-active">0</div><div class="stat-label">Viagens Ativas</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">💰</div>
+    <div><div class="stat-value" id="dash-income">R$ 0</div><div class="stat-label">Receita Total</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon cyan">📊</div>
+    <div><div class="stat-value" id="dash-balance">R$ 0</div><div class="stat-label">Saldo</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber">👷</div>
+    <div><div class="stat-value" id="dash-employees">0</div><div class="stat-label">Funcionários</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red">📋</div>
+    <div><div class="stat-value" id="dash-tasks">0</div><div class="stat-label">Tarefas Pendentes</div></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">🗓 Atividades de Hoje</div></div>
+    <div class="timeline" id="dash-today-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📊 Receitas vs Despesas (6 meses)</div></div>
+    <div class="chart-wrap"><canvas id="dash-cash-chart"></canvas></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">📋 Reservas Recentes</div>
+    <button class="btn btn-sm btn-secondary" onclick="Router.navigate('fluxo')">Ver todas →</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Cliente</th><th>Pacote</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Valor</th></tr></thead>
+      <tbody id="dash-recent-tbody"></tbody>
+    </table>
+  </div>
+</div>

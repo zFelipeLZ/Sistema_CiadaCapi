@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cia da Capivara Turismo — Painel Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+  <div id="app" style="display:block">
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-box">🦔</div>
+          <div><span>Cia da Capivara</span><br><small>Turismo</small></div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
+            <div class="nav-item" data-page="clientes"><span class="icon">👥</span> Clientes</div>
+            <div class="nav-item" data-page="fluxo"><span class="icon">✈️</span> Chegada & Saída</div>
+            <div class="nav-item" data-page="pacotes"><span class="icon">📦</span> Pacotes</div>
+          </div>
+          <div class="nav-section">
+            <div class="nav-section-title">Operacional</div>
+            <div class="nav-item" data-page="funcionarios"><span class="icon">👷</span> Funcionários</div>
+            <div class="nav-item" data-page="caixa"><span class="icon">💰</span> Fluxo de Caixa</div>
+            <div class="nav-item" data-page="documentos"><span class="icon">📎</span> Documentos</div>
+          </div>
+          <div class="nav-section">
+            <div class="nav-section-title">Ferramentas</div>
+            <div class="nav-item" onclick="Exportar.run('all')"><span class="icon">📤</span> Exportar Excel</div>
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar" id="user-avatar">A</div>
+            <div><div class="name" id="user-name">Admin</div><div class="role" id="user-role">Administrador</div></div>
+            <span class="logout-btn" onclick="Auth.logout();window.location.href='login.html'" title="Sair">🚪</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main-content">
+        <header class="topbar">
+          <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
+          <div class="topbar-actions">
+            <div class="notif-btn" id="notif-btn" onclick="Notifications.toggle()">🔔<span class="notif-dot" id="notif-dot"></span></div>
+          </div>
+        </header>
+        <div class="page-content" id="page-content"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Notification Panel -->
+  <div class="notif-panel" id="notif-panel"></div>
+  <!-- Toasts -->
+  <div id="toast-container"></div>
+
+  <!-- SCRIPTS -->
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/clientes.js"></script>
+  <script src="js/fluxo.js"></script>
+  <script src="js/pacotes.js"></script>
+  <script src="js/funcionarios.js"></script>
+  <script src="js/caixa.js"></script>
+  <script src="js/documentos.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

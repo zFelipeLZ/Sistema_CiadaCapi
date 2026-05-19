@@ -1,0 +1,52 @@
+<!-- Fluxo Chegada/Saída Page Template -->
+<div class="page-header">
+  <div><h2>✈️ Fluxo de Chegada & Saída</h2><p>Gerenciar reservas e movimentação de clientes</p></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-secondary" onclick="Exportar.run('bookings')">📤 Exportar</button>
+    <button class="btn btn-primary" onclick="Fluxo.openForm()">+ Nova Reserva</button>
+  </div>
+</div>
+<div class="filters-bar">
+  <div class="filter-group"><label>Buscar</label><input type="text" id="fluxo-search" placeholder="Cliente ou pacote..." oninput="Fluxo.renderList()"></div>
+  <div class="filter-group"><label>Status</label><select id="fluxo-status" onchange="Fluxo.renderList()"><option value="">Todos</option><option value="confirmed">Confirmado</option><option value="arriving">Chegando</option><option value="arrived">Em Andamento</option><option value="finished">Finalizado</option><option value="cancelled">Cancelado</option></select></div>
+  <div class="filter-group"><label>De</label><input type="date" id="fluxo-from" onchange="Fluxo.renderList()"></div>
+  <div class="filter-group"><label>Até</label><input type="date" id="fluxo-to" onchange="Fluxo.renderList()"></div>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Cliente</th><th>Pacote</th><th>Check-in</th><th>Check-out</th><th>Equipe</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="fluxo-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: Nova/Editar Reserva -->
+<div class="modal-overlay" id="fluxo-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="fluxo-modal-title">Nova Reserva</div><button class="modal-close" onclick="closeModal('fluxo-modal')">✕</button></div>
+    <div class="modal-body">
+      <form id="fluxo-form" onsubmit="event.preventDefault();Fluxo.save()">
+        <div class="form-grid">
+          <div class="form-group"><label>Cliente *</label><select name="clientId" id="fluxo-sel-client" required></select></div>
+          <div class="form-group"><label>Pacote *</label><select name="packageId" id="fluxo-sel-package" required></select></div>
+          <div class="form-group"><label>Check-in *</label><input name="checkIn" type="date" required></div>
+          <div class="form-group"><label>Check-out *</label><input name="checkOut" type="date" required></div>
+          <div class="form-group"><label>Partida/Local</label><input name="departure" placeholder="Ex: Aeroporto, Casa"></div>
+          <div class="form-group"><label>Destino/Local</label><input name="destination" placeholder="Ex: Hotel, Serra"></div>
+          <div class="form-group"><label>Nº Pessoas</label><input name="people" type="number" min="1" value="1"></div>
+          <div class="form-group"><label>Status</label><select name="status"><option value="confirmed">Confirmado</option><option value="arriving">Chegando</option><option value="arrived">Em Andamento</option><option value="finished">Finalizado</option><option value="cancelled">Cancelado</option></select></div>
+          <div class="form-group"><label>Guia</label><select name="guideId" id="fluxo-sel-guide"></select></div>
+          <div class="form-group"><label>Motorista</label><select name="driverId" id="fluxo-sel-driver"></select></div>
+          <div class="form-group"><label>Valor Total (R$)</label><input name="totalValue" type="number" step="0.01"></div>
+          <div class="form-group"><label>Valor Pago (R$)</label><input name="paid" type="number" step="0.01"></div>
+          <div class="form-group full"><label>Observações</label><textarea name="notes" rows="2"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('fluxo-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Fluxo.save()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
