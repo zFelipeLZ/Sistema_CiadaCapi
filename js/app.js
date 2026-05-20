@@ -28,7 +28,7 @@ const Router = {
     carros:       { title: 'Carros',             render: () => Carros.render() },
     caixa:        { title: 'Fluxo de Caixa',     render: () => Caixa.render() },
     documentos:   { title: 'Documentos',         render: () => Documentos.render() },
-    exportar:     { title: 'Exportar',           render: () => {} },
+    exportar:     { title: 'Central de Segurança', render: () => BackupPanel.render() },
   },
 
   async navigate(page) {
@@ -46,7 +46,7 @@ const Router = {
     // Fetch and render HTML template
     const container = document.getElementById('page-content');
     try {
-      const response = await fetch(`pages/${page}.html`);
+      const response = await fetch(`pages/${page}.html?v=2.0.0`);
       if (response.ok) {
         container.innerHTML = await response.text();
         this.pages[page].render();
@@ -163,6 +163,33 @@ function startApp() {
   updateUserUI();
   EmailNotifier.init();
   Notifications.render();
+
+  // MutationObserver global para renderizar automaticamente ícones Lucide inseridos dinamicamente
+  let lucideDebounceTimeout = null;
+  const lucideObserver = new MutationObserver((mutations) => {
+    let shouldRender = false;
+    for (const mutation of mutations) {
+      if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.hasAttribute('data-lucide') || node.querySelector('[data-lucide]')) {
+              shouldRender = true;
+              break;
+            }
+          }
+        }
+      }
+      if (shouldRender) break;
+    }
+
+    if (shouldRender && window.lucide && typeof window.lucide.createIcons === 'function') {
+      if (lucideDebounceTimeout) clearTimeout(lucideDebounceTimeout);
+      lucideDebounceTimeout = setTimeout(() => {
+        window.lucide.createIcons();
+      }, 50);
+    }
+  });
+  lucideObserver.observe(document.body, { childList: true, subtree: true });
 
   // Nav clicks
   document.querySelectorAll('.nav-item[data-page]').forEach(item => {

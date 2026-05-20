@@ -6,7 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — Cia da Capivara Turismo</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#130704">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('PWA Service Worker ativo!', reg.scope))
+          .catch(err => console.error('Erro PWA Service Worker:', err));
+      });
+    }
+  </script>
+  <script src="js/lucide.min.js"></script>
 </head>
 
 <body>
@@ -37,8 +48,8 @@
     </div>
   </div>
 
-  <script src="js/storage.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/storage.js?v=2.0.0"></script>
+  <script src="js/auth.js?v=2.0.0"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // Overlay de carregamento

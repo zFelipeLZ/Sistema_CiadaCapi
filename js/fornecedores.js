@@ -51,14 +51,14 @@ const Fornecedores = {
     let list = DB.get(DB.KEYS.PROVIDERS);
     if (search) {
       const f = search.toLowerCase();
-      list = list.filter(e => e.name.toLowerCase().includes(f) || e.role.toLowerCase().includes(f));
+      list = list.filter(e => (e.name || '').toLowerCase().includes(f) || (e.role || '').toLowerCase().includes(f));
     }
     const grid = document.getElementById('emp-grid');
 
     const roleMeta = {
       'guia': { label: 'Guia / Condutor', color: 'amber', icon: 'compass' },
       'motorista': { label: 'Motorista', color: 'blue', icon: 'car' },
-      'hotel': { label: 'Hotel', color: 'green', icon: 'hotel' },
+      'hotel': { label: 'Hotel', color: 'green', icon: 'building' },
       'outros': { label: 'Outros', color: 'purple', icon: 'handshake' }
     };
 
@@ -143,7 +143,7 @@ const Fornecedores = {
     if (filterEmp)    list = list.filter(t => t.employeeId === filterEmp);
     if (filterStatus) list = list.filter(t => t.status === filterStatus);
     if (filterDate)   list = list.filter(t => t.date === filterDate);
-    list = [...list].sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+    list = [...list].sort((a,b) => ( (a.date || '') + (a.time || '') ).localeCompare( (b.date || '') + (b.time || '') ));
 
     const tbody = document.getElementById('tasks-tbody');
     if (!list.length) {

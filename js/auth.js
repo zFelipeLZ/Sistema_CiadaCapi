@@ -8,7 +8,7 @@ const Auth = {
   currentUser: null,
 
   init() {
-    const saved = sessionStorage.getItem(this.SESSION_KEY);
+    const saved = localStorage.getItem(this.SESSION_KEY) || sessionStorage.getItem(this.SESSION_KEY);
     if (saved) {
       this.currentUser = JSON.parse(saved);
       return true;
@@ -22,12 +22,14 @@ const Auth = {
     if (!user) return false;
     this.currentUser = user;
     sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(user));
+    localStorage.setItem(this.SESSION_KEY, JSON.stringify(user));
     return true;
   },
 
   logout() {
     this.currentUser = null;
     sessionStorage.removeItem(this.SESSION_KEY);
+    localStorage.removeItem(this.SESSION_KEY);
     location.reload();
   },
 

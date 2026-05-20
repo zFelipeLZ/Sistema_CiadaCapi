@@ -1,0 +1,175 @@
+<!-- Central de Segurança, Backup e Exportações -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+  <div class="stat-card">
+    <div class="stat-icon amber"><i data-lucide="database"></i></div>
+    <div>
+      <div class="stat-value" id="db-health-size">0 KB</div>
+      <div class="stat-label">Tamanho do Banco Ativo</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i data-lucide="users"></i></div>
+    <div>
+      <div class="stat-value" id="db-health-clients">0</div>
+      <div class="stat-label">Clientes Ativos</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i data-lucide="calendar-check"></i></div>
+    <div>
+      <div class="stat-value" id="db-health-bookings">0</div>
+      <div class="stat-label">Reservas Registradas</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple"><i data-lucide="shield-check"></i></div>
+    <div>
+      <div class="stat-value" id="db-health-backups-count">0 / 7</div>
+      <div class="stat-label">Backups de Segurança</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom: 24px;">
+  <!-- CONTROLE DE BACKUP -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <i data-lucide="shield" style="color:var(--accent);width:18px;height:18px;"></i> 
+        Backup & Recuperação Indestrutível
+      </div>
+    </div>
+    <div style="padding:16px; display:flex; flex-direction:column; gap:16px;">
+      <p style="color:var(--text-secondary); font-size:13px; line-height:1.6;">
+        Garanta que os dados da sua empresa de turismo nunca sejam perdidos. O sistema faz backups automáticos a cada boot e a cada alteração, além de permitir salvamento manual.
+      </p>
+      
+      <!-- Ações Principais -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <button class="btn btn-primary" onclick="BackupPanel.createBackup()" style="justify-content:center; gap:8px;">
+          <i data-lucide="plus-circle" style="width:16px; height:16px;"></i> Criar Cópia Manual
+        </button>
+        <button class="btn btn-secondary" onclick="BackupPanel.downloadBackup()" style="justify-content:center; gap:8px; border-color:var(--border2);">
+          <i data-lucide="download" style="width:16px; height:16px;"></i> Baixar Banco (.db)
+        </button>
+      </div>
+
+      <!-- Divisor -->
+      <div style="border-top:1px solid var(--border); margin:8px 0;"></div>
+
+      <!-- Drag & Drop Upload -->
+      <div>
+        <h4 style="font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+          <i data-lucide="upload-cloud" style="color:var(--accent); width:16px; height:16px;"></i>
+          Restaurar Banco de Dados Externo
+        </h4>
+        <div id="db-upload-dropzone" style="border: 2px dashed var(--border2); border-radius:var(--radius); padding:24px; text-align:center; cursor:pointer; background:var(--bg-card2); transition:var(--transition);" onclick="document.getElementById('db-file-input').click()">
+          <i data-lucide="file-symlink" style="width:32px; height:32px; color:var(--text-secondary); margin-bottom:8px;"></i>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:4px;">
+            Arraste um arquivo <strong>.db</strong> ou clique para procurar
+          </p>
+          <span style="font-size:11px; color:var(--text-muted);">Formatos suportados: SQLite database (.db)</span>
+          <input type="file" id="db-file-input" style="display:none;" accept=".db" onchange="BackupPanel.handleFileUpload(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORTAÇÕES EXCEL -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <i data-lucide="file-spreadsheet" style="color:var(--accent);width:18px;height:18px;"></i>
+        Central de Relatórios Corporativos (Excel)
+      </div>
+    </div>
+    <div style="padding:16px; display:flex; flex-direction:column; gap:16px;">
+      <p style="color:var(--text-secondary); font-size:13px; line-height:1.6;">
+        Exporte relatórios organizados em formato de planilha (XLSX) contendo as informações completas do sistema de forma organizada para reuniões e contabilidade.
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn btn-primary" onclick="Exportar.run('all')" style="justify-content:flex-start; gap:12px; padding:12px 16px; width:100%; background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));">
+          <i data-lucide="download" style="width:18px; height:18px;"></i>
+          <div style="text-align:left;">
+            <div style="font-weight:600; font-size:13px;">Planilha Consolidada Completa</div>
+            <div style="font-size:11px; color:rgba(255,246,229,0.7); font-weight:normal;">Gera um único arquivo Excel contendo abas para todos os dados</div>
+          </div>
+        </button>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button class="btn btn-secondary" onclick="Exportar.run('clients')" style="justify-content:flex-start; gap:8px; padding:10px; border-color:var(--border2);">
+            <i data-lucide="users" style="width:16px; height:16px; color:var(--accent);"></i> Clientes
+          </button>
+          <button class="btn btn-secondary" onclick="Exportar.run('bookings')" style="justify-content:flex-start; gap:8px; padding:10px; border-color:var(--border2);">
+            <i data-lucide="calendar" style="width:16px; height:16px; color:var(--accent);"></i> Reservas
+          </button>
+          <button class="btn btn-secondary" onclick="Exportar.run('packages')" style="justify-content:flex-start; gap:8px; padding:10px; border-color:var(--border2);">
+            <i data-lucide="package" style="width:16px; height:16px; color:var(--accent);"></i> Pacotes
+          </button>
+          <button class="btn btn-secondary" onclick="Exportar.run('providers')" style="justify-content:flex-start; gap:8px; padding:10px; border-color:var(--border2);">
+            <i data-lucide="handshake" style="width:16px; height:16px; color:var(--accent);"></i> Fornecedores
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GRID HISTÓRICO DE BACKUPS -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-title" style="display:flex;align-items:center;gap:8px;">
+      <i data-lucide="history" style="color:var(--accent);width:18px;height:18px;"></i>
+      Histórico de Cópias Locais de Segurança (Últimos 7)
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Arquivo de Backup</th>
+          <th>Tamanho</th>
+          <th>Data de Criação</th>
+          <th>Tipo</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="backups-tbody">
+        <tr>
+          <td colspan="5" style="text-align:center; padding:32px; color:var(--text-muted);">
+            Buscando dados da central de backup...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Restauração -->
+<div class="modal-overlay" id="modal-confirm-restore">
+  <div class="modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <div class="modal-title" style="display:flex; align-items:center; gap:8px; color: var(--red);">
+        <i data-lucide="alert-triangle"></i> Atenção: Confirmar Restauração
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-confirm-restore')">&times;</button>
+    </div>
+    <div class="modal-body" style="font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:12px;">
+      <p>
+        Você está prestes a restaurar uma cópia anterior do banco de dados: 
+        <strong id="restore-target-name" style="color:var(--accent);">—</strong>
+      </p>
+      <div style="background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius:var(--radius-sm); padding:12px; color: var(--text-primary);">
+        ⚠️ <strong>IMPORTANTE:</strong> Esta ação substituirá integralmente todos os dados atuais de Clientes, Reservas, Caixa e Carros pelos dados contidos neste backup. Dados não salvos serão perdidos de forma definitiva.
+      </div>
+      <p>Tem certeza de que deseja continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-confirm-restore')">Cancelar</button>
+      <button class="btn btn-danger" id="btn-confirm-restore-act" style="background:var(--red); border-color:var(--red);">
+        Confirmar e Restaurar
+      </button>
+    </div>
+  </div>
+</div>

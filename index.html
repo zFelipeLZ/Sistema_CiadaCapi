@@ -1,11 +1,58 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <script>
+    // Capturador de erros do navegador em tempo real para diagnóstico
+    window.onerror = function(message, source, lineno, colno, error) {
+      fetch('/api/debug/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: message,
+          stack: error ? error.stack : (source + ':' + lineno + ':' + colno)
+        })
+      });
+    };
+    window.addEventListener('unhandledrejection', function(event) {
+      fetch('/api/debug/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: 'Unhandled Promise Rejection: ' + event.reason,
+          stack: event.reason ? event.reason.stack : ''
+        })
+      });
+    });
+    // Interceptar console.error
+    const _originalConsoleError = console.error;
+    console.error = function(...args) {
+      _originalConsoleError.apply(console, args);
+      fetch('/api/debug/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '),
+          stack: new Error().stack
+        })
+      });
+    };
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cia da Capivara Turismo — Painel Admin</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#130704">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('PWA Service Worker ativo!', reg.scope))
+          .catch(err => console.error('Erro PWA Service Worker:', err));
+      });
+    }
+  </script>
+  <script src="js/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -36,7 +83,7 @@
           </div>
           <div class="nav-section">
             <div class="nav-section-title">Ferramentas</div>
-            <div class="nav-item" onclick="Exportar.run('all')"><i data-lucide="download" class="nav-icon"></i> Exportar Excel</div>
+            <div class="nav-item" data-page="exportar"><i data-lucide="shield" class="nav-icon"></i> Central de Segurança</div>
           </div>
         </nav>
         <div class="sidebar-footer">
@@ -67,16 +114,17 @@
   <div id="toast-container"></div>
 
   <!-- SCRIPTS -->
-  <script src="js/storage.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/clientes.js"></script>
-  <script src="js/fluxo.js"></script>
-  <script src="js/pacotes.js"></script>
-  <script src="js/fornecedores.js"></script>
-  <script src="js/carros.js"></script>
-  <script src="js/caixa.js"></script>
-  <script src="js/documentos.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/storage.js?v=2.0.0"></script>
+  <script src="js/auth.js?v=2.0.0"></script>
+  <script src="js/dashboard.js?v=2.0.0"></script>
+  <script src="js/clientes.js?v=2.0.0"></script>
+  <script src="js/fluxo.js?v=2.0.0"></script>
+  <script src="js/pacotes.js?v=2.0.0"></script>
+  <script src="js/fornecedores.js?v=2.0.0"></script>
+  <script src="js/carros.js?v=2.0.0"></script>
+  <script src="js/caixa.js?v=2.0.0"></script>
+  <script src="js/documentos.js?v=2.0.0"></script>
+  <script src="js/exportar.js?v=2.0.0"></script>
+  <script src="js/app.js?v=2.0.0"></script>
 </body>
 </html>

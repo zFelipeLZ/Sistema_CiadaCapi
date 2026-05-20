@@ -13,7 +13,11 @@ const Carros = {
     let list = DB.get(DB.KEYS.CARS);
     if (search) {
       const f = search.toLowerCase();
-      list = list.filter(c => c.model.toLowerCase().includes(f) || c.plate.toLowerCase().includes(f) || c.description.toLowerCase().includes(f));
+      list = list.filter(c => 
+        (c.model || '').toLowerCase().includes(f) || 
+        (c.plate || '').toLowerCase().includes(f) || 
+        (c.description || '').toLowerCase().includes(f)
+      );
     }
 
     const grid = document.getElementById('cars-grid');

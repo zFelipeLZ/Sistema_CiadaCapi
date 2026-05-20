@@ -3,6 +3,13 @@
 // Cia da Capivara Turismo e Aventura
 // ============================================================
 
+// Safeguard global para evitar travamento em modo offline se o CDN do Lucide não carregar
+if (typeof window.lucide === 'undefined') {
+  window.lucide = {
+    createIcons: () => console.log('ℹ️ Lucide CDN offline. Ícones sofisticados omitidos no modo local offline.')
+  };
+}
+
 const DB = {
   // Memória local (cache em memória — rápido e síncrono para a UI)
   _cache: {},

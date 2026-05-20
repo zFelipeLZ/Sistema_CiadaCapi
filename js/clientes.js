@@ -45,7 +45,7 @@ const Clientes = {
     if (filter) {
       const f = filter.toLowerCase();
       list = list.filter(c =>
-        c.name.toLowerCase().includes(f) ||
+        (c.name || '').toLowerCase().includes(f) ||
         c.email?.toLowerCase().includes(f) ||
         c.phone?.includes(f) ||
         c.location?.toLowerCase().includes(f)
@@ -150,10 +150,9 @@ const Clientes = {
     const c = DB.getOne(DB.KEYS.CLIENTS, id);
     if (!c) return;
 
-    // Buscar itinerário Day by Day
     const daybyday = DB.get(DB.KEYS.DAYBYDAY)
       .filter(d => d.clientId === id)
-      .sort((a, b) => a.date.localeCompare(b.date));
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
     // Buscar reservas vinculadas
     const bookings = DB.get(DB.KEYS.BOOKINGS).filter(b => b.clientId === id);
@@ -241,10 +240,9 @@ const Clientes = {
     }
 
     btnAdd.style.display = 'block';
-    const client = DB.getOne(DB.KEYS.CLIENTS, this.selectedClientId);
     const daybyday = DB.get(DB.KEYS.DAYBYDAY)
       .filter(d => d.clientId === this.selectedClientId)
-      .sort((a, b) => a.date.localeCompare(b.date));
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
     if (!daybyday.length) {
       container.innerHTML = `
@@ -443,10 +441,9 @@ const Clientes = {
       website: 'www.ciadacapivara.com'
     };
 
-    // Buscar itinerário Day by Day
     const daybyday = DB.get(DB.KEYS.DAYBYDAY)
       .filter(d => d.clientId === clientId)
-      .sort((a, b) => a.date.localeCompare(b.date));
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
     // Montar o HTML itinerário para o Voucher
     let itinerarioHtml = '';
@@ -611,6 +608,10 @@ const Clientes = {
     };
 
     // Executar html2pdf
+    if (typeof html2pdf === 'undefined') {
+      showToast('A biblioteca de PDF está indisponível offline. Por favor, conecte-se à rede ou use a opção "Imprimir" do navegador.', 'warning');
+      return;
+    }
     html2pdf().set(opt).from(element).save().then(() => {
       showToast('✅ PDF do Voucher baixado com sucesso!', 'success');
     }).catch(err => {

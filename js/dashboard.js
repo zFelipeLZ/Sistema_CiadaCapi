@@ -71,7 +71,7 @@ const Dashboard = {
             <div style="font-weight:600;font-size:13px">${t.title}</div>
             <div style="font-size:12px;color:var(--text-secondary)">${emp?.name || '—'} — ${t.time}</div>
           </div>
-          <span class="badge badge-secondary" style="margin-left:auto">${t.destination.split('—')[0]}</span>
+          <span class="badge badge-secondary" style="margin-left:auto">${(t.destination || '').split('—')[0]}</span>
         </div>`;
     });
 
@@ -99,6 +99,17 @@ const Dashboard = {
   renderCashChart(cashflow) {
     const canvas = document.getElementById('dash-cash-chart');
     if (!canvas) return;
+
+    if (typeof Chart === 'undefined') {
+      const container = canvas.parentElement;
+      container.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-height:200px; color:var(--text-secondary); gap:8px;">
+          <i data-lucide="bar-chart-2" style="width:32px; height:32px; color:var(--text-muted);"></i>
+          <span style="font-size:12px; font-weight:500;">Gráfico indisponível no modo local (sem internet).</span>
+        </div>`;
+      lucide.createIcons();
+      return;
+    }
 
     // Aggregate last 6 months
     const months = [];

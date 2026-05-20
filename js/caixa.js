@@ -48,7 +48,7 @@ const Caixa = {
     if (f.category) list = list.filter(c => c.category === f.category);
     if (f.from)     list = list.filter(c => c.date >= f.from);
     if (f.to)       list = list.filter(c => c.date <= f.to);
-    list = [...list].sort((a,b) => b.date.localeCompare(a.date));
+    list = [...list].sort((a,b) => (b.date || '').localeCompare(a.date || ''));
 
     const tbody = document.getElementById('caixa-tbody');
     if (!list.length) {
@@ -155,6 +155,10 @@ const Caixa = {
 
 const Exportar = {
   run(module, options = {}) {
+    if (typeof XLSX === 'undefined') {
+      showToast('A biblioteca de exportação (SheetJS) está indisponível offline. Por favor, conecte-se à rede.', 'warning');
+      return;
+    }
     const wb = XLSX.utils.book_new();
 
     const addSheet = (name, data) => {

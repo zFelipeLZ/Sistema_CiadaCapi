@@ -8,6 +8,8 @@ const sqlite3  = require('sqlite3').verbose();
 const path     = require('path');
 const cors     = require('cors');
 
+const fs       = require('fs');
+
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'database.db');
@@ -18,7 +20,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname)));
 
 // ——— BANCO DE DADOS ——————————————————————————————————————————
-const db = new sqlite3.Database(DB_PATH, (err) => {
+let db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) { console.error('Erro ao abrir banco de dados:', err.message); process.exit(1); }
   console.log('✅ Conectado ao banco SQLite:', DB_PATH);
 });
@@ -222,6 +224,10 @@ app.post('/api/db/save', async (req, res) => {
         await dbRun(`INSERT INTO ${table} (${cols.join(', ')}) VALUES (${placeholders})`, vals);
       }
     }
+    
+    // Trigger backup em background pós-save
+    createAutomaticBackup('auto').catch(e => console.error('Erro no backup pós-save:', e.message));
+    
     res.json({ success: true });
   } catch (err) {
     console.error(`Erro em POST /api/db/save (${key}):`, err);
@@ -238,6 +244,10 @@ app.post('/api/db/delete', async (req, res) => {
 
   try {
     await dbRun(`DELETE FROM ${table} WHERE id = ?`, [id]);
+    
+    // Trigger backup em background pós-delete
+    createAutomaticBackup('auto').catch(e => console.error('Erro no backup pós-delete:', e.message));
+    
     res.json({ success: true });
   } catch (err) {
     console.error(`Erro em POST /api/db/delete (${key}):`, err);
@@ -268,9 +278,238 @@ app.post('/api/db/set', async (req, res) => {
         await dbRun(`INSERT OR IGNORE INTO ${table} (${cols.join(', ')}) VALUES (${placeholders})`, vals);
       }
     }
+    
+    // Trigger backup em background pós-set
+    createAutomaticBackup('auto').catch(e => console.error('Erro no backup pós-set:', e.message));
+    
     res.json({ success: true });
   } catch (err) {
     console.error(`Erro em POST /api/db/set (${key}):`, err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ——— SISTEMA DE BACKUPS AUTOMÁTICOS & ROTACIONAIS —————————————————————————
+const BACKUPS_DIR = path.join(__dirname, 'backups');
+if (!fs.existsSync(BACKUPS_DIR)) {
+  fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+}
+
+async function createAutomaticBackup(type = 'auto') {
+  try {
+    if (!fs.existsSync(DB_PATH)) return null;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `backup_${type}_${timestamp}.db`;
+    const destPath = path.join(BACKUPS_DIR, filename);
+    
+    await fs.promises.copyFile(DB_PATH, destPath);
+    console.log(`💾 Backup salvo com sucesso: ${filename}`);
+
+    // Rotatividade: manter os 7 backups mais recentes
+    const files = await fs.promises.readdir(BACKUPS_DIR);
+    const backupFiles = files
+      .filter(f => f.startsWith('backup_') && f.endsWith('.db'))
+      .map(f => {
+        const filePath = path.join(BACKUPS_DIR, f);
+        return {
+          name: f,
+          filePath: filePath,
+          time: fs.statSync(filePath).mtime.getTime()
+        };
+      })
+      .sort((a, b) => a.time - b.time); // mais antigos primeiro
+
+    if (backupFiles.length > 7) {
+      const toDelete = backupFiles.slice(0, backupFiles.length - 7);
+      for (const f of toDelete) {
+        await fs.promises.unlink(f.filePath);
+        console.log(`🧹 Rotatividade de backup: removido backup antigo (${f.name})`);
+      }
+    }
+    return filename;
+  } catch (err) {
+    console.error('⚠️ Falha ao criar backup:', err.message);
+    return null;
+  }
+}
+
+// ——— API: GERENCIAMENTO DE BACKUP & SAÚDE DO SISTEMA —————————————————————
+// 1. Listar backups locais + informações gerais do banco ativo
+app.get('/api/backup/list', async (req, res) => {
+  try {
+    let files = [];
+    if (fs.existsSync(BACKUPS_DIR)) {
+      const rawFiles = await fs.promises.readdir(BACKUPS_DIR);
+      files = rawFiles
+        .filter(f => f.startsWith('backup_') && f.endsWith('.db'))
+        .map(f => {
+          const filePath = path.join(BACKUPS_DIR, f);
+          const stats = fs.statSync(filePath);
+          return {
+            name: f,
+            size: Math.round(stats.size / 1024) + ' KB',
+            createdAt: stats.mtime.toISOString(),
+            type: f.includes('_manual_') ? 'Manual' : f.includes('_boot_') ? 'Inicialização' : 'Automático'
+          };
+        })
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // mais novos primeiro
+    }
+
+    let dbSize = '0 KB';
+    if (fs.existsSync(DB_PATH)) {
+      const activeStats = fs.statSync(DB_PATH);
+      dbSize = Math.round(activeStats.size / 1024) + ' KB';
+    }
+
+    const tables = ['users', 'cars', 'providers', 'clients', 'daybyday', 'packages', 'bookings', 'cashflow', 'tasks', 'documents', 'notifications'];
+    const tablesInfo = {};
+    for (const table of tables) {
+      try {
+        const countRow = await dbGet(`SELECT COUNT(*) as count FROM ${table}`);
+        tablesInfo[table] = countRow ? countRow.count : 0;
+      } catch (e) {
+        tablesInfo[table] = 0;
+      }
+    }
+
+    res.json({
+      success: true,
+      activeDatabase: {
+        size: dbSize,
+        tablesInfo
+      },
+      backups: files
+    });
+  } catch (err) {
+    console.error('Erro ao listar backups:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2. Criar backup manual
+app.post('/api/backup/create', async (req, res) => {
+  try {
+    const filename = await createAutomaticBackup('manual');
+    if (filename) {
+      res.json({ success: true, message: 'Backup manual criado com sucesso!', filename });
+    } else {
+      res.status(500).json({ success: false, error: 'Não foi possível salvar o arquivo de backup.' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3. Download do banco de dados físico ativo
+app.get('/api/backup/download', (req, res) => {
+  try {
+    if (!fs.existsSync(DB_PATH)) {
+      return res.status(404).json({ success: false, error: 'Banco de dados ativo não encontrado.' });
+    }
+    // Define header para download de arquivo binário SQLite
+    res.setHeader('Content-Type', 'application/vnd.sqlite3');
+    res.download(DB_PATH, 'ciadacapivara_backup.db');
+  } catch (err) {
+    console.error('Erro no download do banco:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. Restaurar a partir de backup local interno
+app.post('/api/backup/restore', async (req, res) => {
+  const { filename } = req.body;
+  if (!filename || typeof filename !== 'string') {
+    return res.status(400).json({ success: false, error: 'Nome do arquivo de backup inválido.' });
+  }
+
+  const safeName = path.basename(filename);
+  const backupFilePath = path.join(BACKUPS_DIR, safeName);
+
+  if (!fs.existsSync(backupFilePath)) {
+    return res.status(404).json({ success: false, error: 'Arquivo de backup selecionado não existe.' });
+  }
+
+  try {
+    console.log(`🔄 Iniciando restauração do banco a partir de backup local: ${safeName}`);
+    
+    // Fechar conexão com o banco ativo
+    if (db) {
+      await new Promise((resolve, reject) => {
+        db.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+
+    // Copiar o backup sobre o banco atual
+    await fs.promises.copyFile(backupFilePath, DB_PATH);
+
+    // Reabrir o banco
+    db = new sqlite3.Database(DB_PATH, (err) => {
+      if (err) {
+        console.error('Erro ao reabrir o banco após restauração:', err.message);
+      } else {
+        console.log('✅ Banco de dados reaberto e sincronizado com sucesso!');
+      }
+    });
+
+    res.json({ success: true, message: 'Banco de dados restaurado com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao restaurar banco:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 5. Enviar arquivo externo e restaurar (Upload Backup)
+app.post('/api/backup/upload-restore', async (req, res) => {
+  const { fileData } = req.body;
+  if (!fileData) {
+    return res.status(400).json({ success: false, error: 'Dados do arquivo ausentes.' });
+  }
+
+  try {
+    console.log(`📥 Recebendo upload para restauração de banco de dados...`);
+    const buffer = Buffer.from(fileData, 'base64');
+
+    // Validação mínima para ver se é SQLite válido
+    const headerStr = buffer.toString('utf8', 0, 15);
+    if (headerStr !== 'SQLite format 3') {
+      return res.status(400).json({ success: false, error: 'Arquivo inválido. O arquivo enviado não é um banco de dados SQLite válido.' });
+    }
+
+    // Fechar conexão
+    if (db) {
+      await new Promise((resolve, reject) => {
+        db.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+
+    // Backup de segurança pré-sobrescrever
+    if (fs.existsSync(DB_PATH)) {
+      const emergencyPath = path.join(BACKUPS_DIR, `backup_emergencia_${Date.now()}.db`);
+      await fs.promises.copyFile(DB_PATH, emergencyPath);
+      console.log(`⚠️ Backup de emergência salvo antes da sobrescrita: ${path.basename(emergencyPath)}`);
+    }
+
+    // Gravar o arquivo enviado sobre o banco atual
+    await fs.promises.writeFile(DB_PATH, buffer);
+
+    // Reabrir conexão
+    db = new sqlite3.Database(DB_PATH, (err) => {
+      if (err) {
+        console.error('Erro ao reabrir banco após upload:', err.message);
+      } else {
+        console.log('✅ Banco de dados SQLite reaberto e sincronizado após upload.');
+      }
+    });
+
+    res.json({ success: true, message: 'Banco de dados enviado e restaurado com sucesso!' });
+  } catch (err) {
+    console.error('Erro no upload de restauração:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -289,13 +528,23 @@ app.get('/index', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// ——— API: POST /api/debug/log ————————————————————————————————
+// Permite que o frontend envie logs de erros do console para o servidor
+app.post('/api/debug/log', (req, res) => {
+  console.log('\n❌ [BROWSER ERROR] ---------------------------------------');
+  console.log('Mensagem:', req.body.error);
+  if (req.body.stack) {
+    console.log('Stack Trace:\n', req.body.stack);
+  }
+  console.log('----------------------------------------------------------\n');
+  res.json({ success: true });
+});
+
 // Catch-all: qualquer rota não reconhecida redireciona para login
 app.get('*', (req, res) => {
-  // Se for uma requisição de arquivo (tem extensão), retorna 404 normal
   if (path.extname(req.path)) {
     return res.status(404).send('Arquivo não encontrado');
   }
-  // Senão, serve a index principal (SPA fallback)
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -304,6 +553,10 @@ app.get('*', (req, res) => {
 async function startServer() {
   await createTables();
   await seedDatabase();
+  
+  // Realiza um backup automático preventivo na inicialização
+  await createAutomaticBackup('boot');
+  
   app.listen(PORT, () => {
     console.log(`\n🚀 Cia da Capivara Turismo — Servidor iniciado!`);
     console.log(`   Acesse: http://localhost:${PORT}\n`);

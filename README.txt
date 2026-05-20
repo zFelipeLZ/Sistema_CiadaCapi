@@ -16,7 +16,7 @@ Modificações necessárias
     - Local/Alugado
     - Descrição
 
-- Sessão de cliente separada em duas
+- Sessão de cliente separada em duas subsessões
     - Cadastro cliente
         - Dados do cliente
             - Nome do cliente
