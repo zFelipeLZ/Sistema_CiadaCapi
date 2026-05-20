@@ -1,0 +1,19 @@
+# Dependências Node
+node_modules/
+
+# Banco de dados SQLite (dados locais, não versionados)
+database.db
+database.db-shm
+database.db-wal
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

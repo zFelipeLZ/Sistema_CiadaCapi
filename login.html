@@ -40,10 +40,32 @@
   <script src="js/storage.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      DB.seed();
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Overlay de carregamento
+      const overlay = document.createElement('div');
+      overlay.id = 'login-loading';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#130704;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+      overlay.innerHTML = `
+        <img src="logo.png" alt="Cia da Capivara" style="max-width:200px;max-height:100px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));">
+        <div style="width:40px;height:40px;border:4px solid rgba(255,215,0,0.2);border-top-color:#ffd700;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <span style="color:#d2b48c;font-size:13px;">Conectando ao servidor...</span>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      `;
+      document.body.appendChild(overlay);
+
+      // Carrega dados do servidor
+      await DB.initServerDB();
+
+      // Remove overlay
+      overlay.style.transition = 'opacity 0.3s';
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.remove(), 300);
+
       lucide.createIcons();
+
+      // Se já tem sessão ativa, redireciona para o painel
       if (Auth.init()) { window.location.href = 'index.html'; return; }
+
       document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const u = document.getElementById('login-username').value.trim();
@@ -59,6 +81,7 @@
       });
     });
   </script>
+
 </body>
 
 </html>

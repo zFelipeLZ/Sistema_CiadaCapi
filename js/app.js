@@ -56,7 +56,7 @@ const Router = {
       }
     } catch (err) {
       console.error('Erro de roteamento:', err);
-      container.innerHTML = `<div class="empty-state">Erro ao carregar a página ${page}. (Execute via Live Server ou HTTP)</div>`;
+      container.innerHTML = `<div class="empty-state">Erro ao carregar a página ${page}.</div>`;
     }
   },
 };
@@ -125,23 +125,37 @@ function updateUserUI() {
   document.getElementById('user-role').textContent   = u.role === 'admin' ? 'Administrador' : u.role === 'manager' ? 'Gerente' : 'Recepcionista';
 }
 
-// ——— LOGIN ————————————————————————————————————————————————————
-function initLogin() {
-  document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value;
-    const err      = document.getElementById('login-error');
-    if (Auth.login(username, password)) {
-      document.getElementById('login-page').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      startApp();
-    } else {
-      err.style.display = 'block';
-      err.textContent   = '❌ Usuário ou senha incorretos';
-      document.getElementById('login-password').value = '';
-    }
-  });
+// ——— INDICADOR DE LOADING ————————————————————————————————————
+function showLoadingOverlay(msg = 'Carregando dados...') {
+  const existing = document.getElementById('app-loading-overlay');
+  if (existing) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'app-loading-overlay';
+  overlay.style.cssText = `
+    position:fixed; inset:0; z-index:9999;
+    background:var(--bg-base);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:20px;
+  `;
+  overlay.innerHTML = `
+    <img src="logo.png" alt="Cia da Capivara" style="max-width:200px; max-height:100px; object-fit:contain; filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <div style="width:48px; height:48px; border:4px solid rgba(255,215,0,0.2); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+      <span style="color:var(--text-secondary); font-size:14px; font-weight:500;">${msg}</span>
+    </div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function hideLoadingOverlay() {
+  const el = document.getElementById('app-loading-overlay');
+  if (el) {
+    el.style.transition = 'opacity 0.3s ease';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }
 }
 
 // ——— MAIN INIT ———————————————————————————————————————————————
@@ -175,9 +189,14 @@ function startApp() {
   Router.navigate('dashboard');
 }
 
-// ——— BOOT ————————————————————————————————————————————————————
-document.addEventListener('DOMContentLoaded', () => {
-  DB.seed();
+// ——— BOOT ASSÍNCRONO ————————————————————————————————————————
+document.addEventListener('DOMContentLoaded', async () => {
+  showLoadingOverlay('Conectando ao banco de dados...');
+
+  // Carrega dados do servidor SQLite
+  await DB.initServerDB();
+
+  hideLoadingOverlay();
 
   // Se tem sessão, inicializa a aplicação
   if (Auth.init()) {
@@ -185,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
       startApp();
     }
   } else {
-    // Se não tem sessão, redireciona para login (caso não esteja nele)
+    // Se não tem sessão, redireciona para login
     if (!document.getElementById('login-form')) {
       window.location.href = 'login.html';
     }

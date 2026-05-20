@@ -1,0 +1,22 @@
+{
+  "name": "cia-da-capivara-turismo",
+  "version": "2.0.0",
+  "description": "Painel Administrativo — Cia da Capivara Turismo e Aventura",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.7",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "UNLICENSED"
+}
