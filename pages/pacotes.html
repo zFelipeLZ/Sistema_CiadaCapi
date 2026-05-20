@@ -1,9 +1,9 @@
 <!-- Pacotes Page Template -->
 <div class="page-header">
-  <div><h2>📦 Pacotes Turísticos</h2><p>Cadastro e gestão de pacotes de viagem</p></div>
+  <div><h2><i data-lucide="package" style="vertical-align:middle;margin-right:8px;color:var(--accent)"></i>Pacotes Turísticos</h2><p>Cadastro e gestão de pacotes de viagem</p></div>
   <div style="display:flex;gap:10px">
-    <button class="btn btn-secondary" onclick="Exportar.run('packages')">📤 Exportar</button>
-    <button class="btn btn-primary" onclick="Pacotes.openForm()">+ Novo Pacote</button>
+    <button class="btn btn-secondary" onclick="Exportar.run('packages')" style="display:flex;align-items:center;gap:6px"><i data-lucide="download" style="width:16px;height:16px"></i> Exportar</button>
+    <button class="btn btn-primary" onclick="Pacotes.openForm()" style="display:flex;align-items:center;gap:6px"><i data-lucide="plus" style="width:16px;height:16px"></i> Novo Pacote</button>
   </div>
 </div>
 <div class="filters-bar">
@@ -32,7 +32,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('pacote-modal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="Pacotes.save()">💾 Salvar</button>
+      <button class="btn btn-primary" onclick="Pacotes.save()" style="display:flex;align-items:center;gap:6px"><i data-lucide="save" style="width:16px;height:16px"></i> Salvar</button>
     </div>
   </div>
 </div>

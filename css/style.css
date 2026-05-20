@@ -5,34 +5,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-base:     #0d0d1a;
-  --bg-card:     #141428;
-  --bg-card2:    #1a1a35;
-  --bg-input:    #1f1f3a;
-  --bg-sidebar:  #0a0a18;
-  --border:      rgba(255,255,255,0.08);
-  --border2:     rgba(255,255,255,0.14);
+  --bg-base:     #130704; /* Earthy deep black-brown */
+  --bg-card:     #1e0d08; /* Deep rich terracotta-dark */
+  --bg-card2:    #29130c; /* Lighter warm brown card */
+  --bg-input:    #220f09; /* Warm input bg */
+  --bg-sidebar:  #0c0402; /* Extremely dark earthy sidebar */
+  --border:      rgba(210, 180, 140, 0.12); /* Sandy gold border */
+  --border2:     rgba(210, 180, 140, 0.22); /* Stronger sandy gold border */
 
-  --accent:      #f59e0b;
-  --accent-dark: #d97706;
-  --accent-glow: rgba(245,158,11,0.25);
-  --green:       #10b981;
-  --green-dark:  #059669;
-  --red:         #ef4444;
-  --blue:        #3b82f6;
-  --purple:      #8b5cf6;
-  --cyan:        #06b6d4;
+  --accent:      #ffd700; /* Beautiful golden yellow */
+  --accent-dark: #fbc02d; /* Warm gold/ochre */
+  --accent-glow: rgba(255, 215, 0, 0.2);
+  --accent-rgb:  255, 215, 0;
 
-  --text-primary:   #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted:     #64748b;
+  --terracotta:      #a93209; /* Argila/Terracotta red-brown */
+  --terracotta-dark: #78280b;
+
+  --green:       #2ecc71; /* High-end green */
+  --green-dark:  #27ae60;
+  --red:         #e74c3c; /* Elegant red */
+  --blue:        #3498db; /* Clear blue */
+  --purple:      #9b59b6;
+  --cyan:        #1abc9c;
+
+  --text-primary:   #fff6e5; /* Warm off-white / cream text */
+  --text-secondary: #d2b48c; /* Sandy gold beige */
+  --text-muted:     #8e7a68; /* Muted warm brown */
 
   --sidebar-w: 260px;
   --header-h:  64px;
   --radius:    12px;
   --radius-sm: 8px;
-  --shadow:    0 4px 24px rgba(0,0,0,0.4);
-  --transition: 0.2s ease;
+  --shadow:    0 8px 32px rgba(0,0,0,0.5);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,8 +67,8 @@ html, body {
 #login-page::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 30% 50%, rgba(245,158,11,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 70% 50%, rgba(139,92,246,0.06) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 30% 50%, rgba(255, 215, 0, 0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(120, 40, 11, 0.15) 0%, transparent 60%);
 }
 .login-card {
   position: relative;
@@ -77,16 +82,18 @@ html, body {
 }
 .login-logo {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
-.login-logo .logo-icon {
-  width: 72px; height: 72px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px;
-  margin: 0 auto 16px;
-  box-shadow: 0 8px 32px var(--accent-glow);
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.login-logo-img {
+  max-width: 220px;
+  max-height: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.6));
 }
 .login-logo h1 { font-size: 22px; font-weight: 700; color: var(--text-primary); }
 .login-logo p  { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
@@ -123,21 +130,24 @@ html, body {
   flex-shrink: 0;
   overflow-y: auto;
 }
-.sidebar-logo {
-  padding: 20px 20px 16px;
+.sidebar-logo-container {
+  padding: 24px 16px;
   border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.15);
 }
-.sidebar-logo .logo-box {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
+.sidebar-logo-img {
+  max-width: 90%;
+  max-height: 70px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  transition: var(--transition);
 }
-.sidebar-logo span { font-size: 13px; font-weight: 700; line-height: 1.3; color: var(--text-primary); }
-.sidebar-logo small { font-size: 10px; color: var(--text-secondary); }
+.sidebar-logo-img:hover {
+  transform: scale(1.05);
+}
 
 .sidebar-nav { padding: 12px 10px; flex: 1; }
 .nav-section { margin-bottom: 20px; }
@@ -160,9 +170,9 @@ html, body {
 }
 .nav-item:hover { background: var(--bg-card2); color: var(--text-primary); }
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(245,158,11,0.08));
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(120, 40, 11, 0.12));
   color: var(--accent);
-  border: 1px solid rgba(245,158,11,0.2);
+  border: 1px solid rgba(255, 215, 0, 0.22);
 }
 .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
 .nav-badge {
@@ -547,4 +557,57 @@ select option { background: var(--bg-card2); }
   .sidebar { display: none; }
   .form-grid { grid-template-columns: 1fr; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ——— LUCIDE VECTORS —————————————————————————————— */
+i[data-lucide], svg.lucide {
+  display: inline-block;
+  vertical-align: middle;
+  stroke-width: 2px;
+  width: 1.2em;
+  height: 1.2em;
+}
+.sidebar-nav i.nav-icon, .sidebar-nav svg.lucide {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.nav-item:hover i.nav-icon, .nav-item:hover svg.lucide {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+.nav-item.active i.nav-icon, .nav-item.active svg.lucide {
+  color: var(--accent);
+}
+.btn i, .btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.2px;
+}
+.stat-icon i, .stat-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2px;
+}
+.stat-icon.amber { color: var(--accent); }
+.stat-icon.green { color: var(--green); }
+.stat-icon.blue { color: var(--blue); }
+.stat-icon.purple { color: var(--purple); }
+.stat-icon.red { color: var(--red); }
+.stat-icon.cyan { color: var(--cyan); }
+
+.empty-state .icon i, .empty-state .icon svg {
+  width: 48px;
+  height: 48px;
+  stroke-width: 1.5px;
+  color: var(--text-muted);
+}
+.empty-icon {
+  width: 48px !important;
+  height: 48px !important;
+  stroke-width: 1.5px !important;
+  color: var(--text-muted) !important;
+  margin-bottom: 12px;
 }

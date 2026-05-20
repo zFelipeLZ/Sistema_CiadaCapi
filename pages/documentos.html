@@ -1,8 +1,8 @@
 <!-- Documentos Page Template -->
 <div class="page-header">
-  <div><h2>📎 Gestão de Documentos</h2><p>Anexe PDFs, comprovantes e vouchers</p></div>
+  <div><h2><i data-lucide="file-text" style="vertical-align:middle;margin-right:8px;color:var(--accent)"></i>Gestão de Documentos</h2><p>Anexe PDFs, comprovantes e vouchers</p></div>
   <div style="display:flex;gap:10px">
-    <button class="btn btn-primary" onclick="Documentos.openUpload()">+ Anexar Documento</button>
+    <button class="btn btn-primary" onclick="Documentos.openUpload()" style="display:flex;align-items:center;gap:6px"><i data-lucide="plus" style="width:16px;height:16px"></i> Anexar Documento</button>
   </div>
 </div>
 
@@ -23,7 +23,7 @@
           <div class="form-group full">
             <label>Selecione os Arquivos (PDF, Imagens, Word)</label>
             <div style="border:2px dashed var(--border2);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;background:var(--bg-card2);transition:var(--transition)" onclick="document.getElementById('doc-file-input').click()" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">
-              <div style="font-size:32px;margin-bottom:12px">📤</div>
+              <i data-lucide="upload" style="width:36px;height:36px;margin:0 auto 12px auto;color:var(--accent);display:block"></i>
               <div style="font-weight:600">Clique para selecionar arquivos</div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Tamanho máximo recomendado: 5MB por arquivo</div>
             </div>
@@ -35,7 +35,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('doc-modal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="Documentos.save()">💾 Enviar Arquivos</button>
+      <button class="btn btn-primary" onclick="Documentos.save()" style="display:flex;align-items:center;gap:6px"><i data-lucide="save" style="width:16px;height:16px"></i> Enviar Arquivos</button>
     </div>
   </div>
 </div>

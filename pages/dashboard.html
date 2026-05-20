@@ -1,53 +1,53 @@
 <!-- Dashboard Page Template -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon amber">👥</div>
+    <div class="stat-icon amber"><i data-lucide="users"></i></div>
     <div><div class="stat-value" id="dash-clients">0</div><div class="stat-label">Clientes Cadastrados</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon green">🛬</div>
+    <div class="stat-icon green"><i data-lucide="plane-landing"></i></div>
     <div><div class="stat-value" id="dash-arrivals">0</div><div class="stat-label">Chegadas Hoje</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon blue">🛫</div>
+    <div class="stat-icon blue"><i data-lucide="plane-takeoff"></i></div>
     <div><div class="stat-value" id="dash-departures">0</div><div class="stat-label">Saídas Hoje</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon purple">🧳</div>
+    <div class="stat-icon purple"><i data-lucide="briefcase"></i></div>
     <div><div class="stat-value" id="dash-active">0</div><div class="stat-label">Viagens Ativas</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon green">💰</div>
+    <div class="stat-icon green"><i data-lucide="dollar-sign"></i></div>
     <div><div class="stat-value" id="dash-income">R$ 0</div><div class="stat-label">Receita Total</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon cyan">📊</div>
+    <div class="stat-icon cyan"><i data-lucide="bar-chart-2"></i></div>
     <div><div class="stat-value" id="dash-balance">R$ 0</div><div class="stat-label">Saldo</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon amber">👷</div>
-    <div><div class="stat-value" id="dash-employees">0</div><div class="stat-label">Funcionários</div></div>
+    <div class="stat-icon amber"><i data-lucide="handshake"></i></div>
+    <div><div class="stat-value" id="dash-providers">0</div><div class="stat-label">Fornecedores</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon red">📋</div>
+    <div class="stat-icon red"><i data-lucide="clipboard-list"></i></div>
     <div><div class="stat-value" id="dash-tasks">0</div><div class="stat-label">Tarefas Pendentes</div></div>
   </div>
 </div>
 
 <div class="grid-2">
   <div class="card">
-    <div class="card-header"><div class="card-title">🗓 Atividades de Hoje</div></div>
+    <div class="card-header"><div class="card-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="calendar" style="color:var(--accent);width:18px;height:18px;"></i> Atividades de Hoje</div></div>
     <div class="timeline" id="dash-today-list"></div>
   </div>
   <div class="card">
-    <div class="card-header"><div class="card-title">📊 Receitas vs Despesas (6 meses)</div></div>
+    <div class="card-header"><div class="card-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="bar-chart-2" style="color:var(--accent);width:18px;height:18px;"></i> Receitas vs Despesas (6 meses)</div></div>
     <div class="chart-wrap"><canvas id="dash-cash-chart"></canvas></div>
   </div>
 </div>
 
 <div class="card">
   <div class="card-header">
-    <div class="card-title">📋 Reservas Recentes</div>
+    <div class="card-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="clipboard-list" style="color:var(--accent);width:18px;height:18px;"></i> Reservas Recentes</div>
     <button class="btn btn-sm btn-secondary" onclick="Router.navigate('fluxo')">Ver todas →</button>
   </div>
   <div class="table-wrap">

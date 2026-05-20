@@ -24,7 +24,8 @@ const Router = {
     clientes:     { title: 'Clientes',           render: () => Clientes.render() },
     fluxo:        { title: 'Chegada & Saída',    render: () => Fluxo.render() },
     pacotes:      { title: 'Pacotes',            render: () => Pacotes.render() },
-    funcionarios: { title: 'Funcionários',       render: () => Funcionarios.render() },
+    fornecedores: { title: 'Fornecedores',       render: () => Fornecedores.render() },
+    carros:       { title: 'Carros',             render: () => Carros.render() },
     caixa:        { title: 'Fluxo de Caixa',     render: () => Caixa.render() },
     documentos:   { title: 'Documentos',         render: () => Documentos.render() },
     exportar:     { title: 'Exportar',           render: () => {} },
@@ -49,6 +50,7 @@ const Router = {
       if (response.ok) {
         container.innerHTML = await response.text();
         this.pages[page].render();
+        lucide.createIcons();
       } else {
         container.innerHTML = `<div class="empty-state">Erro ao carregar a página ${page}</div>`;
       }

@@ -1,0 +1,54 @@
+<!-- Carros Page Template -->
+<div class="page-header">
+  <div><h2><i data-lucide="car" style="vertical-align:middle;margin-right:8px;color:var(--accent)"></i>Frota & Veículos</h2><p>Gerencie os carros locais e alugados associados à operação</p></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-secondary" onclick="Exportar.run('cars')" style="display:flex;align-items:center;gap:6px"><i data-lucide="download" style="width:16px;height:16px"></i> Exportar</button>
+    <button class="btn btn-primary" onclick="Carros.openCarForm()" style="display:flex;align-items:center;gap:6px"><i data-lucide="plus" style="width:16px;height:16px"></i> Novo Carro</button>
+  </div>
+</div>
+
+<div>
+  <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:center">
+    <h3 style="font-size:16px;font-weight:700">Carros Cadastrados</h3>
+    <input type="text" placeholder="Buscar carro..." oninput="Carros.renderCars(this.value)" style="padding:8px 14px;width:250px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text-main)">
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px" id="cars-grid"></div>
+</div>
+
+<!-- Modal: Novo/Editar Carro -->
+<div class="modal-overlay" id="car-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="car-modal-title">Novo Carro</div>
+      <button class="modal-close" onclick="closeModal('car-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="car-form" onsubmit="event.preventDefault();Carros.saveCar()">
+        <div class="form-grid">
+          <div class="form-group full"><label>Modelo / Veículo *</label><input name="model" placeholder="Ex: Toyota Hilux, Spin" required></div>
+          <div class="form-group"><label>Placa *</label><input name="plate" placeholder="Ex: BRA2E19" required></div>
+          <div class="form-group">
+            <label>Situação/Propriedade *</label>
+            <select name="type" required>
+              <option value="local">Próprio (Local)</option>
+              <option value="rented">Alugado</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Status / Disponibilidade *</label>
+            <select name="status" required>
+              <option value="disponivel">Disponível (Não Utilizado)</option>
+              <option value="em_uso">Sendo Utilizado / Em Trânsito</option>
+              <option value="manutencao">Em Manutenção / Fora de Serviço</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Descrição / Opcionais</label><textarea name="description" placeholder="Ex: 7 lugares, tração 4x4, ar-condicionado..." rows="3"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('car-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Carros.saveCar()" style="display:flex;align-items:center;gap:6px"><i data-lucide="save" style="width:16px;height:16px"></i> Salvar</button>
+    </div>
+  </div>
+</div>

@@ -1,20 +1,183 @@
 <!-- Clientes Page Template -->
-<div class="page-header">
-  <div><h2>👥 Clientes</h2><p>Gerencie o cadastro de clientes</p></div>
-  <div style="display:flex;gap:10px">
-    <button class="btn btn-secondary" onclick="Exportar.run('clients')">📤 Exportar</button>
-    <button class="btn btn-primary" onclick="Clientes.openForm()">+ Novo Cliente</button>
+<style>
+/* Estilos para as abas */
+.tab-container {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 20px;
+}
+.tab-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 18px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab-button:hover {
+  color: var(--text-main);
+}
+.tab-button.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+/* Estilos adicionais para a linha do tempo do Day by Day */
+.day-card {
+  border-left: 4px solid var(--accent);
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: 0 8px 8px 0;
+  box-shadow: var(--shadow-sm);
+}
+.day-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.day-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Estilos de impressão do Voucher */
+@media print {
+  /* Ocultar elementos desnecessários da interface */
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .app-layout, .sidebar, .topbar, .notif-panel, #toast-container, .btn, .modal-header, .modal-footer, .tab-container {
+    display: none !important;
+  }
+  .modal-overlay {
+    position: static !important;
+    background: none !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+  .modal-overlay .modal {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .modal-body {
+    padding: 0 !important;
+  }
+  #voucher-print-area {
+    display: block !important;
+    visibility: visible !important;
+    color: #000000 !important;
+    font-family: 'Outfit', 'Inter', sans-serif !important;
+  }
+}
+</style>
+
+<div class="tab-container">
+  <button class="tab-button active" id="btn-tab-cadastro" onclick="Clientes.switchTab('cadastro')"><i data-lucide="users" style="width:16px;height:16px"></i> Ficha de Clientes</button>
+  <button class="tab-button" id="btn-tab-daybyday" onclick="Clientes.switchTab('daybyday')"><i data-lucide="calendar" style="width:16px;height:16px"></i> Cronograma Day by Day</button>
+  <button class="tab-button" id="btn-tab-voucher-config" onclick="Clientes.switchTab('voucher-config')"><i data-lucide="file-text" style="width:16px;height:16px"></i> Configurar Voucher</button>
+</div>
+
+<!-- ==================== SUBSEÇÃO 1: CADASTRO CLIENTE ==================== -->
+<div class="tab-content active" id="tab-cadastro">
+  <div class="page-header">
+    <div><h2><i data-lucide="users" style="vertical-align:middle;margin-right:8px;color:var(--accent)"></i>Cadastro de Clientes</h2><p>Gerencie as fichas cadastrais e perfis dos clientes</p></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-secondary" onclick="Exportar.run('clients')" style="display:flex;align-items:center;gap:6px"><i data-lucide="download" style="width:16px;height:16px"></i> Exportar</button>
+      <button class="btn btn-primary" onclick="Clientes.openForm()" style="display:flex;align-items:center;gap:6px"><i data-lucide="plus" style="width:16px;height:16px"></i> Novo Cliente</button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-group" style="flex:1"><label>Buscar Cliente</label><input type="text" id="clients-search" placeholder="Buscar por nome, e-mail ou localidade..." oninput="Clientes.renderList(this.value)"></div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Localidade</th>
+            <th>Telefone / E-mail</th>
+            <th>Nº Pessoas</th>
+            <th>Faixa Etária</th>
+            <th style="width:280px">Ações</th>
+          </tr>
+        </thead>
+          <tbody id="clients-tbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
-<div class="filters-bar">
-  <div class="filter-group"><label>Buscar</label><input type="text" id="clients-search" placeholder="Nome, CPF, email..." oninput="Clientes.renderList(this.value)"></div>
+
+<!-- ==================== SUBSEÇÃO 2: DAY BY DAY ==================== -->
+<div class="tab-content" id="tab-daybyday">
+  <div class="page-header">
+    <div><h2><i data-lucide="calendar" style="vertical-align:middle;margin-right:8px;color:var(--accent)"></i>Planejamento Day by Day</h2><p>Organize o itinerário diário detalhado para cada cliente</p></div>
+    <button class="btn btn-primary" id="btn-add-daybyday" style="display:none;align-items:center;gap:6px" onclick="Clientes.openDayByDayForm()"><i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar Dia</button>
+  </div>
+
+  <div class="filters-bar" style="margin-bottom:20px">
+    <div class="filter-group" style="flex:1">
+      <label>Selecione o Cliente para Planejamento</label>
+      <select id="daybyday-client-select" onchange="Clientes.onDayByDayClientChange()" style="width:100%; padding:10px; font-size:14px; font-weight:600">
+        <option value="">— Selecione um Cliente —</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="daybyday-timeline-container" class="card" style="padding:24px">
+    <div id="daybyday-timeline-content">
+      <div class="empty-state">
+        <div class="icon"><i data-lucide="calendar" style="width:48px;height:48px;color:var(--text-muted)"></i></div>
+        <p>Selecione um cliente acima para visualizar ou planejar o itinerário dia a dia.</p>
+      </div>
+    </div>
+  </div>
 </div>
-<div class="card">
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Email</th><th>Viagens</th><th>Ações</th></tr></thead>
-      <tbody id="clients-tbody"></tbody>
-    </table>
+
+<!-- ==================== SUBSEÇÃO 3: CONFIGURAR VOUCHER ==================== -->
+<div class="tab-content" id="tab-voucher-config">
+  <div class="page-header">
+    <div><h2><i data-lucide="file-text" style="vertical-align:middle;margin-right:8px;color:var(--accent)"></i>Configurações de Emissão de Voucher</h2><p>Defina as informações de cabeçalho e rodapé dos vouchers emitidos</p></div>
+  </div>
+
+  <div class="card" style="max-width:600px; padding:24px">
+    <form id="voucher-config-form" onsubmit="event.preventDefault(); Clientes.saveVoucherSettings()">
+      <div class="form-grid">
+        <div class="form-group"><label>Nome da Empresa *</label><input name="logoName" required></div>
+        <div class="form-group"><label>Emoji da Logomarca *</label><input name="logoEmoji" required placeholder="Ex: 🦔 ou ✈️"></div>
+        <div class="form-group"><label>Cadastur da Empresa *</label><input name="cadastur" required placeholder="Ex: 12.345.678/0001-90"></div>
+        <div class="form-group"><label>Instagram Oficial *</label><input name="instagram" required placeholder="Ex: @ciadacapivara"></div>
+        <div class="form-group full"><label>Site da Empresa (Opcional)</label><input name="website" placeholder="Ex: www.ciadacapivara.com"></div>
+      </div>
+      <div style="margin-top:20px; display:flex; justify-content:flex-end">
+        <button class="btn btn-primary" type="submit" style="display:flex;align-items:center;gap:6px"><i data-lucide="save" style="width:16px;height:16px"></i> Salvar Configurações</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -25,27 +188,81 @@
     <div class="modal-body">
       <form id="client-form" onsubmit="event.preventDefault();Clientes.save()">
         <div class="form-grid">
-          <div class="form-group"><label>Nome *</label><input name="name" required></div>
-          <div class="form-group"><label>CPF</label><input name="cpf" placeholder="000.000.000-00"></div>
-          <div class="form-group"><label>Telefone</label><input name="phone"></div>
-          <div class="form-group"><label>Email</label><input name="email" type="email"></div>
-          <div class="form-group"><label>Endereço</label><input name="address"></div>
-          <div class="form-group"><label>Data de Nascimento</label><input name="birthdate" type="date"></div>
-          <div class="form-group full"><label>Observações</label><textarea name="notes" rows="3"></textarea></div>
+          <div class="form-group full"><label>Nome do Cliente *</label><input name="name" required placeholder="Nome completo do cliente"></div>
+          <div class="form-group"><label>Telefone</label><input name="phone" placeholder="Ex: (11) 99999-9999"></div>
+          <div class="form-group"><label>Email</label><input name="email" type="email" placeholder="Ex: cliente@email.com"></div>
+          <div class="form-group"><label>Localidade</label><input name="location" placeholder="Ex: São Paulo - SP"></div>
+          <div class="form-group"><label>Número de Pessoas *</label><input name="peopleCount" type="number" min="1" value="1" required></div>
+          <div class="form-group full">
+            <label>Faixa Etária</label>
+            <input name="ageGroup" placeholder="Ex: 2 Adultos e 1 Criança, ou Idosos">
+          </div>
+          <div class="form-group full"><label>Descrição / Observações Gerais</label><textarea name="description" placeholder="Informações de preferência, restrições alimentares, restrições físicas..." rows="3"></textarea></div>
         </div>
       </form>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="Clientes.save()">💾 Salvar</button>
+      <button class="btn btn-primary" onclick="Clientes.save()" style="display:flex;align-items:center;gap:6px"><i data-lucide="save" style="width:16px;height:16px"></i> Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Ver Cliente -->
+<!-- Modal: Novo/Editar Day by Day -->
+<div class="modal-overlay" id="daybyday-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="daybyday-modal-title">Novo Dia no Itinerário</div><button class="modal-close" onclick="closeModal('daybyday-modal')">✕</button></div>
+    <div class="modal-body">
+      <form id="daybyday-form" onsubmit="event.preventDefault();Clientes.saveDayByDay()">
+        <div class="form-grid">
+          <div class="form-group"><label>Data *</label><input name="date" type="date" required></div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select name="status" required>
+              <option value="pending">Pendente</option>
+              <option value="in_progress">Em Andamento</option>
+              <option value="done">Concluído</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Guia (Opcional)</label><select name="guideId" id="dbd-sel-guide"></select></div>
+          <div class="form-group"><label>Motorista (Opcional)</label><select name="driverId" id="dbd-sel-driver"></select></div>
+          <div class="form-group full"><label>Carro (Opcional)</label><select name="carId" id="dbd-sel-car"></select></div>
+          <div class="form-group full"><label>Descrição das Atividades *</label><textarea name="description" placeholder="Descreva os passeios, horários, pontos turísticos visitados..." rows="3" required></textarea></div>
+          <div class="form-group full"><label>Observações Adicionais (Opcional)</label><textarea name="notes" placeholder="Cuidados específicos, avisos..." rows="2"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('daybyday-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="Clientes.saveDayByDay()" style="display:flex;align-items:center;gap:6px"><i data-lucide="save" style="width:16px;height:16px"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ver Cliente Ficha Completa -->
 <div class="modal-overlay" id="client-view-modal">
   <div class="modal modal-lg">
-    <div class="modal-header"><div class="modal-title">Detalhes do Cliente</div><button class="modal-close" onclick="closeModal('client-view-modal')">✕</button></div>
+    <div class="modal-header"><div class="modal-title">Ficha Completa do Cliente</div><button class="modal-close" onclick="closeModal('client-view-modal')">✕</button></div>
     <div class="modal-body" id="client-view-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('client-view-modal')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Visualizar Voucher Premium (Pronto para Impressão) -->
+<div class="modal-overlay" id="voucher-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="file-text" style="color:var(--accent)"></i> Visualização do Voucher</div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button class="btn btn-secondary" onclick="window.print()" style="display:flex;align-items:center;gap:6px"><i data-lucide="printer" style="width:16px;height:16px"></i> Imprimir</button>
+        <button class="btn btn-primary" onclick="Clientes.downloadPDF()" style="display:flex;align-items:center;gap:6px"><i data-lucide="download" style="width:16px;height:16px"></i> Salvar PDF</button>
+        <button class="modal-close" style="position:static" onclick="closeModal('voucher-modal')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" id="voucher-modal-body">
+      <!-- O Voucher será gerado dinamicamente aqui -->
+    </div>
   </div>
 </div>

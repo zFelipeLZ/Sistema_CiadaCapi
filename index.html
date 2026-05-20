@@ -5,43 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cia da Capivara Turismo — Painel Admin</title>
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div id="app" style="display:block">
     <div class="app-layout">
       <!-- SIDEBAR -->
       <aside class="sidebar">
-        <div class="sidebar-logo">
-          <div class="logo-box">🦔</div>
-          <div><span>Cia da Capivara</span><br><small>Turismo</small></div>
+        <div class="sidebar-logo-container">
+          <img src="logo.png" alt="Cia da Capivara Logo" class="sidebar-logo-img">
         </div>
         <nav class="sidebar-nav">
           <div class="nav-section">
             <div class="nav-section-title">Principal</div>
-            <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
-            <div class="nav-item" data-page="clientes"><span class="icon">👥</span> Clientes</div>
-            <div class="nav-item" data-page="fluxo"><span class="icon">✈️</span> Chegada & Saída</div>
-            <div class="nav-item" data-page="pacotes"><span class="icon">📦</span> Pacotes</div>
+            <div class="nav-item active" data-page="dashboard"><i data-lucide="layout-dashboard" class="nav-icon"></i> Dashboard</div>
+            <div class="nav-item" data-page="clientes"><i data-lucide="users" class="nav-icon"></i> Clientes</div>
+            <div class="nav-item" data-page="fluxo"><i data-lucide="route" class="nav-icon"></i> Chegada & Saída</div>
+            <div class="nav-item" data-page="pacotes"><i data-lucide="package" class="nav-icon"></i> Pacotes</div>
           </div>
           <div class="nav-section">
             <div class="nav-section-title">Operacional</div>
-            <div class="nav-item" data-page="funcionarios"><span class="icon">👷</span> Funcionários</div>
-            <div class="nav-item" data-page="caixa"><span class="icon">💰</span> Fluxo de Caixa</div>
-            <div class="nav-item" data-page="documentos"><span class="icon">📎</span> Documentos</div>
+            <div class="nav-item" data-page="fornecedores"><i data-lucide="handshake" class="nav-icon"></i> Fornecedores</div>
+            <div class="nav-item" data-page="carros"><i data-lucide="car" class="nav-icon"></i> Carros</div>
+            <div class="nav-item" data-page="caixa"><i data-lucide="dollar-sign" class="nav-icon"></i> Fluxo de Caixa</div>
+            <div class="nav-item" data-page="documentos"><i data-lucide="file-text" class="nav-icon"></i> Documentos</div>
           </div>
           <div class="nav-section">
             <div class="nav-section-title">Ferramentas</div>
-            <div class="nav-item" onclick="Exportar.run('all')"><span class="icon">📤</span> Exportar Excel</div>
+            <div class="nav-item" onclick="Exportar.run('all')"><i data-lucide="download" class="nav-icon"></i> Exportar Excel</div>
           </div>
         </nav>
         <div class="sidebar-footer">
           <div class="user-info">
             <div class="user-avatar" id="user-avatar">A</div>
             <div><div class="name" id="user-name">Admin</div><div class="role" id="user-role">Administrador</div></div>
-            <span class="logout-btn" onclick="Auth.logout();window.location.href='login.html'" title="Sair">🚪</span>
+            <span class="logout-btn" onclick="Auth.logout();window.location.href='login.html'" title="Sair"><i data-lucide="log-out" class="nav-icon"></i></span>
           </div>
         </div>
       </aside>
@@ -51,7 +53,7 @@
         <header class="topbar">
           <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
           <div class="topbar-actions">
-            <div class="notif-btn" id="notif-btn" onclick="Notifications.toggle()">🔔<span class="notif-dot" id="notif-dot"></span></div>
+            <div class="notif-btn" id="notif-btn" onclick="Notifications.toggle()"><i data-lucide="bell"></i><span class="notif-dot" id="notif-dot"></span></div>
           </div>
         </header>
         <div class="page-content" id="page-content"></div>
@@ -71,7 +73,8 @@
   <script src="js/clientes.js"></script>
   <script src="js/fluxo.js"></script>
   <script src="js/pacotes.js"></script>
-  <script src="js/funcionarios.js"></script>
+  <script src="js/fornecedores.js"></script>
+  <script src="js/carros.js"></script>
   <script src="js/caixa.js"></script>
   <script src="js/documentos.js"></script>
   <script src="js/app.js"></script>

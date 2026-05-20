@@ -52,7 +52,8 @@ const Caixa = {
 
     const tbody = document.getElementById('caixa-tbody');
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">💰</div><p>Nenhum lançamento encontrado</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon"><i data-lucide="dollar-sign" style="width:48px; height:48px; stroke-width:1.5"></i></div><p>Nenhum lançamento encontrado</p></div></td></tr>`;
+      lucide.createIcons();
       return;
     }
     tbody.innerHTML = list.map(c => `<tr>
@@ -65,11 +66,13 @@ const Caixa = {
       </td>
       <td>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-sm btn-secondary" onclick="Caixa.openForm('${c.id}')">✏️</button>
-          <button class="btn btn-sm btn-danger"    onclick="Caixa.delete('${c.id}')">🗑</button>
+          <button class="btn btn-sm btn-secondary" style="display:inline-flex; align-items:center; justify-content:center" onclick="Caixa.openForm('${c.id}')" title="Editar"><i data-lucide="pencil" style="width:12px; height:12px"></i></button>
+          <button class="btn btn-sm btn-danger" style="display:inline-flex; align-items:center; justify-content:center" onclick="Caixa.delete('${c.id}')" title="Excluir"><i data-lucide="trash-2" style="width:12px; height:12px"></i></button>
         </div>
       </td>
     </tr>`).join('');
+
+    lucide.createIcons();
   },
 
   renderChart() {
@@ -162,8 +165,14 @@ const Exportar = {
 
     if (module === 'all' || module === 'clients') {
       addSheet('Clientes', DB.get(DB.KEYS.CLIENTS).map(c => ({
-        Nome: c.name, CPF: c.cpf, Telefone: c.phone, Email: c.email,
-        Endereço: c.address, Nascimento: formatDate(c.birthdate), Cadastro: formatDate(c.createdAt), Obs: c.notes,
+        Nome: c.name,
+        Telefone: c.phone || '—',
+        Email: c.email || '—',
+        Localidade: c.location || '—',
+        'Nº Pessoas': c.peopleCount || 1,
+        'Faixa Etária': c.ageGroup || '—',
+        'Descrição/Observações': c.description || '—',
+        Cadastro: formatDate(c.createdAt),
       })));
     }
     if (module === 'all' || module === 'bookings') {
@@ -174,8 +183,8 @@ const Exportar = {
       const dataToExport = bookings.map(b => {
         const c = DB.getOne(DB.KEYS.CLIENTS, b.clientId);
         const p = DB.getOne(DB.KEYS.PACKAGES, b.packageId);
-        const g = DB.getOne(DB.KEYS.EMPLOYEES, b.guideId);
-        const d = DB.getOne(DB.KEYS.EMPLOYEES, b.driverId);
+        const g = DB.getOne(DB.KEYS.PROVIDERS, b.guideId);
+        const d = DB.getOne(DB.KEYS.PROVIDERS, b.driverId);
         return {
           Cliente: c?.name, Pacote: p?.name, Destino: p?.destination,
           'Check-in': formatDate(b.checkIn), 'Check-out': formatDate(b.checkOut),
@@ -198,18 +207,43 @@ const Exportar = {
         Descrição: p.description,
       })));
     }
-    if (module === 'all' || module === 'employees') {
-      addSheet('Funcionários', DB.get(DB.KEYS.EMPLOYEES).map(e => ({
-        Nome: e.name, Função: e.role, Telefone: e.phone, Email: e.email, Obs: e.notes,
+    if (module === 'all' || module === 'providers' || module === 'employees') {
+      const roleMeta = { 'guia': 'Guia', 'motorista': 'Motorista', 'hotel': 'Hotel', 'outros': 'Outros' };
+      addSheet('Fornecedores', DB.get(DB.KEYS.PROVIDERS).map(e => {
+        const car = e.carId ? DB.getOne(DB.KEYS.CARS, e.carId) : null;
+        return {
+          Nome: e.name,
+          Função: roleMeta[e.role] || 'Outro',
+          Telefone: e.phone,
+          Email: e.email,
+          'Local (Hotéis)': e.hotelLocation || '—',
+          'Carro Associado (Motoristas)': car ? `${car.model} (${car.plate})` : '—',
+          Obs: e.notes,
+        };
+      }));
+    }
+    if (module === 'all' || module === 'cars') {
+      addSheet('Carros', DB.get(DB.KEYS.CARS).map(c => ({
+        Modelo: c.model,
+        Placa: c.plate,
+        Situação: c.type === 'local' ? 'Próprio' : 'Alugado',
+        Descrição: c.description || '—',
       })));
     }
-    if (module === 'all' || module === 'employees' || module === 'tasks') {
-      addSheet('Tarefas', DB.get(DB.KEYS.TASKS).map(t => {
-        const e = DB.getOne(DB.KEYS.EMPLOYEES, t.employeeId);
+    if (module === 'all' || module === 'providers' || module === 'tasks' || module === 'employees') {
+      addSheet('Escalas', DB.get(DB.KEYS.TASKS).map(t => {
+        const e = DB.getOne(DB.KEYS.PROVIDERS, t.employeeId);
+        const roleMeta = { 'guia': 'Guia', 'motorista': 'Motorista', 'hotel': 'Hotel', 'outros': 'Outros' };
         return {
-          Título: t.title, Funcionário: e?.name, Função: e?.role,
-          Partida: t.departure, Destino: t.destination, Data: formatDate(t.date), Hora: t.time,
-          Status: STATUS_LABELS[t.status]?.label, Descrição: t.description,
+          'Escala/Serviço': t.title,
+          Fornecedor: e?.name,
+          Função: e ? (roleMeta[e.role] || 'Outro') : '',
+          Partida: t.departure,
+          Destino: t.destination,
+          Data: formatDate(t.date),
+          Hora: t.time,
+          Status: STATUS_LABELS[t.status]?.label,
+          Descrição: t.description,
         };
       }));
     }

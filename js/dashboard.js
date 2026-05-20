@@ -9,7 +9,7 @@ const Dashboard = {
     const bookings   = DB.get(DB.KEYS.BOOKINGS);
     const clients    = DB.get(DB.KEYS.CLIENTS);
     const cashflow   = DB.get(DB.KEYS.CASHFLOW);
-    const employees  = DB.get(DB.KEYS.EMPLOYEES);
+    const providers  = DB.get(DB.KEYS.PROVIDERS);
     const tasks      = DB.get(DB.KEYS.TASKS);
     const packages   = DB.get(DB.KEYS.PACKAGES);
     const tod        = today();
@@ -30,7 +30,7 @@ const Dashboard = {
     el('dash-active').textContent       = activeTrips;
     el('dash-income').textContent       = formatCurrency(totalIncome);
     el('dash-balance').textContent      = formatCurrency(totalIncome - totalExpense);
-    el('dash-employees').textContent    = employees.length;
+    el('dash-providers').textContent    = providers.length;
     el('dash-tasks').textContent        = pendingTasks;
 
     this.renderTodayActivity(bookings, tasks);
@@ -62,7 +62,7 @@ const Dashboard = {
     });
 
     todayT.forEach(t => {
-      const emp = DB.getOne(DB.KEYS.EMPLOYEES, t.employeeId);
+      const emp = DB.getOne(DB.KEYS.PROVIDERS, t.employeeId);
       const color = t.status === 'in_progress' ? 'green' : 'muted';
       html += `
         <div class="timeline-item">
@@ -75,7 +75,7 @@ const Dashboard = {
         </div>`;
     });
 
-    list.innerHTML = html || '<div class="empty-state"><div class="icon">☀️</div><p>Nenhuma atividade hoje</p></div>';
+    list.innerHTML = html || '<div class="empty-state"><div class="icon"><i data-lucide="sun" style="width:48px;height:48px;color:var(--text-muted)"></i></div><p>Nenhuma atividade hoje</p></div>';
   },
 
   renderRecentBookings(bookings) {
