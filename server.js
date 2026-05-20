@@ -329,10 +329,30 @@ app.post('/api/db/set', async (req, res) => {
   }
 });
 
-// ——— CATCH-ALL: serve index.html para SPA —————————————————————
+// ——— ROTAS DE PÁGINAS ————————————————————————————————————————
+// Serve as páginas HTML sem a extensão .html na URL
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Catch-all: qualquer rota não reconhecida redireciona para login
+app.get('*', (req, res) => {
+  // Se for uma requisição de arquivo (tem extensão), retorna 404 normal
+  if (path.extname(req.path)) {
+    return res.status(404).send('Arquivo não encontrado');
+  }
+  // Senão, serve a index principal (SPA fallback)
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 
 // ——— BOOT ————————————————————————————————————————————————————
 async function startServer() {
