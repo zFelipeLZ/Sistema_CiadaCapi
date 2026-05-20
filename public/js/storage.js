@@ -147,7 +147,10 @@ function formatCurrency(value) {
 }
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  const [y, m, d] = dateStr.split('-');
+  const cleanDate = dateStr.includes(' ') ? dateStr.split(' ')[0] : dateStr.split('T')[0];
+  const parts = cleanDate.split('-');
+  if (parts.length !== 3) return dateStr;
+  const [y, m, d] = parts;
   return `${d}/${m}/${y}`;
 }
 function formatDateFull(dateStr) {

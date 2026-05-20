@@ -17,7 +17,7 @@ const DB_PATH = path.join(__dirname, 'database.db');
 // ——— MIDDLEWARES ——————————————————————————————————————————————
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ——— BANCO DE DADOS ——————————————————————————————————————————
 let db = new sqlite3.Database(DB_PATH, (err) => {
@@ -307,23 +307,33 @@ async function createAutomaticBackup(type = 'auto') {
 
     // Rotatividade: manter os 7 backups mais recentes
     const files = await fs.promises.readdir(BACKUPS_DIR);
-    const backupFiles = files
-      .filter(f => f.startsWith('backup_') && f.endsWith('.db'))
-      .map(f => {
+    const backupFiles = [];
+    for (const f of files) {
+      if (f.startsWith('backup_') && f.endsWith('.db')) {
         const filePath = path.join(BACKUPS_DIR, f);
-        return {
-          name: f,
-          filePath: filePath,
-          time: fs.statSync(filePath).mtime.getTime()
-        };
-      })
-      .sort((a, b) => a.time - b.time); // mais antigos primeiro
+        try {
+          const stats = await fs.promises.stat(filePath);
+          backupFiles.push({
+            name: f,
+            filePath: filePath,
+            time: stats.mtime.getTime()
+          });
+        } catch (e) {
+          // Arquivo deletado concorrentemente ou não acessível, apenas ignora
+        }
+      }
+    }
+    backupFiles.sort((a, b) => a.time - b.time); // mais antigos primeiro
 
     if (backupFiles.length > 7) {
       const toDelete = backupFiles.slice(0, backupFiles.length - 7);
       for (const f of toDelete) {
-        await fs.promises.unlink(f.filePath);
-        console.log(`🧹 Rotatividade de backup: removido backup antigo (${f.name})`);
+        try {
+          await fs.promises.unlink(f.filePath);
+          console.log(`🧹 Rotatividade de backup: removido backup antigo (${f.name})`);
+        } catch (e) {
+          // Arquivo já deletado concorrentemente ou travado, apenas ignora
+        }
       }
     }
     return filename;
@@ -517,15 +527,15 @@ app.post('/api/backup/upload-restore', async (req, res) => {
 // ——— ROTAS DE PÁGINAS ————————————————————————————————————————
 // Serve as páginas HTML sem a extensão .html na URL
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.get('/index', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ——— API: POST /api/debug/log ————————————————————————————————
@@ -545,7 +555,7 @@ app.get('*', (req, res) => {
   if (path.extname(req.path)) {
     return res.status(404).send('Arquivo não encontrado');
   }
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 

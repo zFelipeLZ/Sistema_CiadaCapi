@@ -584,9 +584,9 @@ const Clientes = {
       return;
     }
 
-    // Buscar nome do cliente para usar no arquivo
+    // Buscar nome do cliente para usar no arquivo (segundo td da primeira linha da tabela de informações)
     let clientName = 'Cliente';
-    const clientTitleCell = element.querySelector('table td[style*="font-weight:700"]');
+    const clientTitleCell = element.querySelector('table tr td:nth-child(2)');
     if (clientTitleCell) {
       clientName = clientTitleCell.textContent.trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
     }

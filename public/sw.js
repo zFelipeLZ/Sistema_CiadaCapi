@@ -2,7 +2,7 @@
 // SW.JS — Service Worker para Suporte a PWA e Offline Caching
 // ============================================================
 
-const CACHE_NAME = 'ciacapivara-cache-v1.0.1';
+const CACHE_NAME = 'ciacapivara-cache-v1.0.2';
 const ASSETS = [
   '/',
   '/index',
